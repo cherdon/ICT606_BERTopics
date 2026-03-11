@@ -7,7 +7,6 @@ comments to support tuning for short, informal tweet text.
 """
 
 import time
-from pathlib import Path
 from typing import Any, List, Optional
 
 from bertopic import BERTopic
@@ -15,6 +14,7 @@ from bertopic.representation import KeyBERTInspired
 from bertopic.vectorizers import ClassTfidfTransformer
 from hdbscan import HDBSCAN
 from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction import text as sklearn_text
 from sklearn.feature_extraction.text import CountVectorizer
 from umap import UMAP
 
@@ -125,10 +125,10 @@ def get_hdbscan_model(
 
 def get_vectorizer_model(
     ngram_range: tuple[int, int] = (1, 2),
-    stop_words: str = "english",
     max_features: Optional[int] = 10_000,
     min_df: int = 2,
     max_df: float = 0.95,
+    extra_stop_words: Optional[List[str]] = None,
     **kwargs: Any,
 ) -> CountVectorizer:
     """
@@ -136,18 +136,11 @@ def get_vectorizer_model(
     weighted by c-TF-IDF. For tweets we want unigrams and bigrams to capture
     phrases (e.g. "vaccine hesitancy", "wear a mask").
 
-    Choice: ngram_range=(1, 2), stop_words="english", min_df=2 to drop
-    rare terms, max_df=0.95 to drop corpus-wide buzzwords. max_features
-    caps vocabulary size for speed and to avoid noise.
-
-    TODO: Finetune this step:
-    - Adjust ngram_range: (1, 1) for more generic topics; (1, 3) if
-      multi-word phrases are important.
-    - Tune min_df / max_df for your corpus size and noise level.
-    - Consider max_features=5000 for smaller corpora or 20000 for very large.
-    - Add custom stop words (e.g. COVID-related generic terms) via stop_words
-      or a list.
+    Uses English stop words by default. Pass extra_stop_words to override or extend.
     """
+    stop_words = sklearn_text.ENGLISH_STOP_WORDS
+    if extra_stop_words:
+        stop_words = stop_words.union(extra_stop_words)
     return CountVectorizer(
         ngram_range=ngram_range,
         stop_words=stop_words,

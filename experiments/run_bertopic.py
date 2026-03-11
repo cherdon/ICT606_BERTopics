@@ -6,7 +6,8 @@ _root = Path(__file__).resolve().parents[1]
 if _root not in sys.path:
     sys.path.insert(0, str(_root))
 
-from utils.bertopic_pipeline import run_pipeline
+from utils.bertopic_pipeline import run_pipeline, build_bertopic_pipeline
+from utils.bertopic_pipeline import get_embedding_model, get_umap_model, get_hdbscan_model, get_representation_model, get_vectorizer_model, get_ctfidf_model
 
 # Columns to drop from the raw CSV (not needed for topic modeling)
 COLUMNS_TO_DROP = [
@@ -21,6 +22,11 @@ COLUMNS_TO_DROP = [
     "pos",
     "lang",
     "original_author",
+]
+# COVID-related terms to exclude from topic terms (too frequent / non-discriminative)
+COVID_STOPWORDS = [
+    "covid", "covid19", "covid_19", "covid-19", "covid__19",
+    "coronavirus", "pandemic", "covid19pandemic",
 ]
 
 if __name__ == "__main__":
@@ -73,7 +79,14 @@ if __name__ == "__main__":
         print("No documents. Exiting.")
         sys.exit(1)
 
+    # ---------------------------------------------------------------------------
+    # CUSTOM PIPELINE
+    # ---------------------------------------------------------------------------
+    pipeline = build_bertopic_pipeline(
+        vectorizer_model=get_vectorizer_model(extra_stop_words=COVID_STOPWORDS)
+    )
+
     print("Building and fitting BERTopic pipeline...")
-    model, topics, probs = run_pipeline(documents)
+    model, topics, probs = run_pipeline(documents, build_fn=pipeline)
     print(f"Found {len(set(topics) - {-1})} topics (+ outliers -1).")
     print("Topic info:", model.get_topic_info().head(10).to_string())
