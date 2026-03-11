@@ -12,6 +12,8 @@ COLUMNS_TO_DROP = [
     "neg",
     "neu",
     "pos",
+    "lang",
+    "original_author",
 ]
 
 if __name__ == "__main__":
