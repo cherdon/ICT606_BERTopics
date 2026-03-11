@@ -195,24 +195,38 @@ def preprocess_tweet(
 
 def preprocess_tweet_series(
     series: "pd.Series",
+    show_progress: bool = True,
+    progress_desc: str = "Preprocessing tweets",
     **kwargs: bool,
 ) -> "pd.Series":
     """Apply preprocess_tweet to every element of a pandas Series.
 
     Args:
         series: Series of tweet strings.
+        show_progress: If True and tqdm is installed, show a progress bar.
+        progress_desc: Label for the progress bar when show_progress is True.
         **kwargs: Passed to preprocess_tweet.
 
     Returns:
         New Series of preprocessed strings.
     """
-    return series.astype(str).apply(lambda x: preprocess_tweet(x, **kwargs))
+    s = series.astype(str)
+    if show_progress:
+        try:
+            from tqdm import tqdm
+            tqdm.pandas(desc=progress_desc)
+            return s.progress_apply(lambda x: preprocess_tweet(x, **kwargs))
+        except ImportError:
+            pass
+    return s.apply(lambda x: preprocess_tweet(x, **kwargs))
 
 
 def preprocess_tweets(
     df: pd.DataFrame,
     text_column: str = "original_text",
     output_column: Optional[str] = None,
+    show_progress: bool = True,
+    progress_desc: str = "Preprocessing tweets",
     **kwargs: bool,
 ) -> pd.DataFrame:
     """Apply preprocess_tweet to the given text column of a DataFrame.
@@ -225,6 +239,8 @@ def preprocess_tweets(
         text_column: Column name containing raw tweet strings.
         output_column: If set, preprocessed text is written here; otherwise
             text_column is overwritten.
+        show_progress: If True and tqdm is installed, show a progress bar.
+        progress_desc: Label for the progress bar when show_progress is True.
         **kwargs: Passed to preprocess_tweet (e.g. remove_urls_flag=True).
 
     Returns:
@@ -234,7 +250,12 @@ def preprocess_tweets(
         raise ValueError(f"Text column '{text_column}' not in DataFrame")
     out = df.copy()
     target = output_column if output_column is not None else text_column
-    out[target] = preprocess_tweet_series(out[text_column], **kwargs)
+    out[target] = preprocess_tweet_series(
+        out[text_column],
+        show_progress=show_progress,
+        progress_desc=progress_desc,
+        **kwargs,
+    )
     return out
 
 

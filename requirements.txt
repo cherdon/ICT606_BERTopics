@@ -1,7 +1,15 @@
 pandas>=2.0.0
 emoji>=2.0.0
-bertopic>=0.16.0
-sentence-transformers>=2.2.0
+tqdm>=4.65.0
+numpy>=1.24,<2
+# PyTorch: use latest available for your platform/Python (2.2.2 common on macOS Py 3.11)
+torch>=2.0.0
+# BERTopic 0.16.x works with sentence-transformers 2.x; 0.17+ requires StaticEmbedding (st 3.2+)
+bertopic>=0.16.0,<0.17.0
+# Pin to versions that work with PyTorch 2.2 (no 2.4 requirement)
+# sentence-transformers 2.3+ uses hf_hub_download (works with current huggingface_hub)
+sentence-transformers>=2.3.0,<2.4.0
+transformers>=4.44.0,<4.46.0
 # Pin to a version with pre-built wheels on macOS + Python 3.11 (avoids LLVM build)
 llvmlite==0.43.0
 numba>=0.60.0,<0.61

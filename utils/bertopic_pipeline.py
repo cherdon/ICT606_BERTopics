@@ -6,6 +6,7 @@ clustering, vectorizer, c-TF-IDF, representation) with model choices and
 comments to support tuning for short, informal tweet text.
 """
 
+import time
 from pathlib import Path
 from typing import Any, List, Optional
 
@@ -272,6 +273,19 @@ def build_bertopic_pipeline(
 # CONVENIENCE: fit and return model + topic assignments
 # ---------------------------------------------------------------------------
 
+def _timed_step(step_name: str):
+    """Return a wrapper that prints and times a method call."""
+    def wrapper(fn):
+        def timed_fn(*args, **kwargs):
+            print(f"  {step_name} ...", end=" ", flush=True)
+            t0 = time.perf_counter()
+            out = fn(*args, **kwargs)
+            print(f"{time.perf_counter() - t0:.1f}s")
+            return out
+        return timed_fn
+    return wrapper
+
+
 def run_pipeline(
     documents: List[str],
     build_fn=None,
@@ -279,10 +293,37 @@ def run_pipeline(
     """
     Run the full pipeline on a list of documents (e.g. cleaned tweets).
     Returns (model, topic_ids, probabilities).
-    probabilities is None unless calculate_probabilities=True in the model.
     """
     if build_fn is None:
         build_fn = build_bertopic_pipeline
+
+    print("1. Building pipeline ...")
+    t0 = time.perf_counter()
     model = build_fn()
-    topics, probs = model.fit_transform(documents)
+    print(f"   Done in {time.perf_counter() - t0:.1f}s")
+
+    # Wrap internal steps so we can time each (step 1 = build above; 2–6 = fit)
+    steps = [
+        ("2. Embedding", "_extract_embeddings"),
+        ("3. UMAP", "_reduce_dimensionality"),
+        ("4. HDBSCAN", "_cluster_embeddings"),
+        ("5. c-TF-IDF & topics", "_extract_topics"),
+        ("6. Topic vectors", "_create_topic_vectors"),
+    ]
+    originals = {}
+    for label, method_name in steps:
+        fn = getattr(model, method_name, None)
+        if fn is not None:
+            originals[method_name] = fn
+            setattr(model, method_name, _timed_step(label)(fn))
+
+    print(f"Fitting on {len(documents)} documents (steps 2–6):")
+    t0 = time.perf_counter()
+    try:
+        topics, probs = model.fit_transform(documents)
+    finally:
+        for method_name, fn in originals.items():
+            setattr(model, method_name, fn)
+    print(f"  Total fit: {time.perf_counter() - t0:.1f}s")
+
     return model, topics, probs

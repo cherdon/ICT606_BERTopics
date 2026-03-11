@@ -1,4 +1,11 @@
 from pathlib import Path
+import sys
+
+# Ensure project root is on path when run as script (e.g. from experiments/)
+_root = Path(__file__).resolve().parents[1]
+if _root not in sys.path:
+    sys.path.insert(0, str(_root))
+
 from utils.bertopic_pipeline import run_pipeline
 
 # Columns to drop from the raw CSV (not needed for topic modeling)
@@ -17,10 +24,6 @@ COLUMNS_TO_DROP = [
 ]
 
 if __name__ == "__main__":
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
     from utils import (
         filter_language,
         get_documents,
