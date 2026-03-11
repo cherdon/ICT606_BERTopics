@@ -133,14 +133,11 @@ def get_vectorizer_model(
 ) -> CountVectorizer:
     """
     CountVectorizer builds the document-term matrix per topic, which is then
-    weighted by c-TF-IDF. For tweets we want unigrams and bigrams to capture
-    phrases (e.g. "vaccine hesitancy", "wear a mask").
-
-    Uses English stop words by default. Pass extra_stop_words to override or extend.
+    weighted by c-TF-IDF. Uses English, pass extra_stop_words to add more.
     """
-    stop_words = sklearn_text.ENGLISH_STOP_WORDS
-    if extra_stop_words:
-        stop_words = stop_words.union(extra_stop_words)
+    stop_words = list(
+        sklearn_text.ENGLISH_STOP_WORDS.union(extra_stop_words or [])
+    )
     return CountVectorizer(
         ngram_range=ngram_range,
         stop_words=stop_words,
@@ -270,10 +267,11 @@ def _timed_step(step_name: str):
     """Return a wrapper that prints and times a method call."""
     def wrapper(fn):
         def timed_fn(*args, **kwargs):
-            print(f"  {step_name} ...", end=" ", flush=True)
+            print(f"Starting {step_name} ...", flush=True)
             t0 = time.perf_counter()
             out = fn(*args, **kwargs)
-            print(f"{time.perf_counter() - t0:.1f}s")
+            elapsed = time.perf_counter() - t0
+            print(f"{step_name} completed in {elapsed:.1f}s", flush=True)
             return out
         return timed_fn
     return wrapper
@@ -285,15 +283,21 @@ def run_pipeline(
 ) -> tuple[BERTopic, List[int], Optional[Any]]:
     """
     Run the full pipeline on a list of documents (e.g. cleaned tweets).
+    build_fn: either a callable that returns a BERTopic model (e.g. build_bertopic_pipeline)
+              or an already-built BERTopic instance.
     Returns (model, topic_ids, probabilities).
     """
     if build_fn is None:
         build_fn = build_bertopic_pipeline
 
-    print("1. Building pipeline ...")
-    t0 = time.perf_counter()
-    model = build_fn()
-    print(f"   Done in {time.perf_counter() - t0:.1f}s")
+    if callable(build_fn):
+        print("1. Building pipeline ...", flush=True)
+        t0 = time.perf_counter()
+        model = build_fn()
+        print(f"1. Building pipeline completed in {time.perf_counter() - t0:.1f}s", flush=True)
+    else:
+        model = build_fn
+        print("1. Using pre-built pipeline.", flush=True)
 
     # Wrap internal steps so we can time each (step 1 = build above; 2–6 = fit)
     steps = [
@@ -310,13 +314,13 @@ def run_pipeline(
             originals[method_name] = fn
             setattr(model, method_name, _timed_step(label)(fn))
 
-    print(f"Fitting on {len(documents)} documents (steps 2–6):")
+    print(f"Fitting on {len(documents)} documents (steps 2–6):", flush=True)
     t0 = time.perf_counter()
     try:
         topics, probs = model.fit_transform(documents)
     finally:
         for method_name, fn in originals.items():
             setattr(model, method_name, fn)
-    print(f"  Total fit: {time.perf_counter() - t0:.1f}s")
+    print(f"Total fit completed in {time.perf_counter() - t0:.1f}s", flush=True)
 
     return model, topics, probs
