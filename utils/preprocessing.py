@@ -1,9 +1,241 @@
 """Preprocessing functions for Covid-19 Twitter data before BERTopic."""
 
+import re
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 import pandas as pd
+
+try:
+    import emoji
+except ImportError:
+    emoji = None  # type: ignore[assignment]
+
+# ---------------------------------------------------------------------------
+# URL and artifact patterns (compiled once)
+# ---------------------------------------------------------------------------
+_URL_PATTERN = re.compile(
+    r"https?://[^\s]+|www\.[^\s]+",
+    re.IGNORECASE,
+)
+_RT_PATTERN = re.compile(
+    r"\bRT\s*@\s*[\w]+:\s*",
+    re.IGNORECASE,
+)
+
+
+def remove_urls(text: str) -> str:
+    """Remove URLs (http, https, www) from text.
+
+    Args:
+        text: Input string.
+
+    Returns:
+        String with URLs removed.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return text
+    return _URL_PATTERN.sub(" ", text)
+
+
+def remove_special_chars_preserve_text(text: str) -> str:
+    """Remove @ and # but keep the text that follows (e.g. @user -> user, #tag -> tag).
+
+    Args:
+        text: Input string.
+
+    Returns:
+        String with @ and # removed; mentions and hashtag text preserved.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return text
+    # Replace @mention with mention, #hashtag with hashtag (preserve the word)
+    out = re.sub(r"@(\w+)", r"\1", text)
+    out = re.sub(r"#(\w+)", r"\1", out)
+    return out
+
+
+def remove_artifacts(text: str) -> str:
+    """Remove non-text artifacts such as &amp;, \\n, \\t, &lt;, &gt;, &quot;, etc.
+
+    Args:
+        text: Input string.
+
+    Returns:
+        String with HTML entities and control characters normalized/removed.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return text
+    out = text.replace("&amp;", " ")
+    out = out.replace("&lt;", " ")
+    out = out.replace("&gt;", " ")
+    out = out.replace("&quot;", " ")
+    out = out.replace("&#39;", "'")
+    out = re.sub(r"&#\d+;", " ", out)
+    out = out.replace("\n", " ").replace("\r", " ").replace("\t", " ")
+    return out
+
+
+def remove_extra_whitespace(text: str) -> str:
+    """Collapse multiple spaces/newlines to a single space and strip.
+
+    Args:
+        text: Input string.
+
+    Returns:
+        String with normalized whitespace.
+    """
+    if not isinstance(text, str):
+        return text
+    out = re.sub(r"\s+", " ", text)
+    return out.strip()
+
+
+def remove_rt_markers(text: str) -> str:
+    """Remove retweet markers like 'RT @username: ' while keeping the rest of the text.
+
+    Args:
+        text: Input string.
+
+    Returns:
+        String with RT @user: prefix removed.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return text
+    return _RT_PATTERN.sub(" ", text)
+
+
+def emojis_to_text(text: str) -> str:
+    """Convert emojis to words using emoji.demojize(), then split by underscore.
+
+    e.g. 😷 -> :face_with_medical_mask: -> 'face with medical mask'.
+
+    Requires the 'emoji' package. If not installed, returns text unchanged.
+
+    Args:
+        text: Input string possibly containing emojis.
+
+    Returns:
+        String with emojis replaced by space-separated words.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return text
+    if emoji is None:
+        return text
+    # Standard demojize gives e.g. ":face_with_medical_mask:"
+    demojized = emoji.demojize(text)
+    # Replace each :shortcode: with words separated by spaces (underscore -> space)
+    def shortcode_to_words(match: re.Match) -> str:
+        return match.group(1).replace("_", " ")
+    out = re.sub(r":([a-z0-9_]+):", shortcode_to_words, demojized)
+    return out
+
+
+def to_lowercase(text: str) -> str:
+    """Convert text to lowercase.
+
+    Args:
+        text: Input string.
+
+    Returns:
+        Lowercase string.
+    """
+    if not isinstance(text, str):
+        return text
+    return text.lower()
+
+
+def preprocess_tweet(
+    text: str,
+    *,
+    remove_urls_flag: bool = True,
+    remove_artifacts_flag: bool = True,
+    remove_rt_flag: bool = True,
+    remove_special_chars_flag: bool = True,
+    emojis_to_text_flag: bool = True,
+    normalize_whitespace: bool = True,
+    lowercase: bool = True,
+) -> str:
+    """Apply a full preprocessing pipeline to a single tweet string.
+
+    Order: URLs -> artifacts -> RT markers -> @/# (preserve text) -> emojis -> whitespace -> lowercase.
+
+    Args:
+        text: Raw tweet text.
+        remove_urls_flag: Whether to remove URLs.
+        remove_artifacts_flag: Whether to remove &amp;, \\n, etc.
+        remove_rt_flag: Whether to remove 'RT @user:'.
+        remove_special_chars_flag: Whether to strip @ and # but keep following text.
+        emojis_to_text_flag: Whether to convert emojis to words.
+        normalize_whitespace: Whether to collapse and trim whitespace.
+        lowercase: Whether to lowercase.
+
+    Returns:
+        Preprocessed tweet string.
+    """
+    if not isinstance(text, str):
+        return str(text)
+    s = text
+    if remove_urls_flag:
+        s = remove_urls(s)
+    if remove_artifacts_flag:
+        s = remove_artifacts(s)
+    if remove_rt_flag:
+        s = remove_rt_markers(s)
+    if remove_special_chars_flag:
+        s = remove_special_chars_preserve_text(s)
+    if emojis_to_text_flag:
+        s = emojis_to_text(s)
+    if normalize_whitespace:
+        s = remove_extra_whitespace(s)
+    if lowercase:
+        s = to_lowercase(s)
+    return s
+
+
+def preprocess_tweet_series(
+    series: "pd.Series",
+    **kwargs: bool,
+) -> "pd.Series":
+    """Apply preprocess_tweet to every element of a pandas Series.
+
+    Args:
+        series: Series of tweet strings.
+        **kwargs: Passed to preprocess_tweet.
+
+    Returns:
+        New Series of preprocessed strings.
+    """
+    return series.astype(str).apply(lambda x: preprocess_tweet(x, **kwargs))
+
+
+def preprocess_tweets(
+    df: pd.DataFrame,
+    text_column: str = "original_text",
+    output_column: Optional[str] = None,
+    **kwargs: bool,
+) -> pd.DataFrame:
+    """Apply preprocess_tweet to the given text column of a DataFrame.
+
+    Uses preprocess_tweet_series under the hood. Returns a copy of the
+    DataFrame with the (possibly new) column set to the preprocessed text.
+
+    Args:
+        df: DataFrame containing a column of raw tweet text.
+        text_column: Column name containing raw tweet strings.
+        output_column: If set, preprocessed text is written here; otherwise
+            text_column is overwritten.
+        **kwargs: Passed to preprocess_tweet (e.g. remove_urls_flag=True).
+
+    Returns:
+        New DataFrame with preprocessed text in output_column or text_column.
+    """
+    if text_column not in df.columns:
+        raise ValueError(f"Text column '{text_column}' not in DataFrame")
+    out = df.copy()
+    target = output_column if output_column is not None else text_column
+    out[target] = preprocess_tweet_series(out[text_column], **kwargs)
+    return out
 
 
 def load_covid_tweets(

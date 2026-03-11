@@ -286,31 +286,3 @@ def run_pipeline(
     model = build_fn()
     topics, probs = model.fit_transform(documents)
     return model, topics, probs
-
-
-if __name__ == "__main__":
-    # Example: run pipeline using project utils for data loading
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-    from utils import prepare_for_bertopic
-
-    data_dir = Path(__file__).resolve().parents[1] / "data" / "covid19_twitter_dataset"
-    print("Loading and preprocessing COVID-19 tweets...")
-    documents, metadata = prepare_for_bertopic(
-        data_dir=data_dir,
-        text_column="clean_tweet",
-        lang="en",
-        min_length=10,
-        dedupe=True,
-    )
-    print(f"Documents: {len(documents)}")
-
-    if not documents:
-        print("No documents. Exiting.")
-        sys.exit(1)
-
-    print("Building and fitting BERTopic pipeline...")
-    model, topics, probs = run_pipeline(documents)
-    print(f"Found {len(set(topics) - {-1})} topics (+ outliers -1).")
-    print("Topic info:", model.get_topic_info().head(10).to_string())

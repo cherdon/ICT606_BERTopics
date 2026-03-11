@@ -1,153 +1,74 @@
-"""Run BERTopic on Covid-19 Twitter data using utils.preprocessing."""
-
-import argparse
 from pathlib import Path
+from utils.bertopic_pipeline import run_pipeline
 
-from bertopic import BERTopic
+# Columns to drop from the raw CSV (not needed for topic modeling)
+COLUMNS_TO_DROP = [
+    "id",
+    "source",
+    "hashtags",
+    "user_mentions",
+    "clean_tweet",
+    "compound",
+    "neg",
+    "neu",
+    "pos",
+]
 
-# Optional: add project root to path when running as script
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+if __name__ == "__main__":
+    import sys
 
-from utils import prepare_for_bertopic
-from utils import visualisation
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+    from utils import (
+        filter_language,
+        get_documents,
+        load_covid_tweets,
+        preprocess_tweets,
+        remove_duplicates,
+    )
 
-# Config: override via CLI or edit here
-DEFAULT_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "covid19_twitter_dataset"
-DEFAULT_TEXT_COLUMN = "clean_tweet"
-DEFAULT_MIN_LENGTH = 10
-DEFAULT_DEDUPE = True
-DEFAULT_TOP_N_TOPICS = 10
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parents[1] / "output"
+    data_dir = Path(__file__).resolve().parents[1] / "data" / "covid19_twitter_dataset"
+    text_column = "original_text"
+    processed_column = "processed_text"
 
+    # 1. Load CSV data as DataFrame
+    print("Loading CSV data...")
+    df = load_covid_tweets(data_dir)
+    print(f"Loaded {len(df)} rows.")
 
-def run(
-    data_dir: Path | str,
-    text_column: str = DEFAULT_TEXT_COLUMN,
-    min_length: int = DEFAULT_MIN_LENGTH,
-    dedupe: bool = DEFAULT_DEDUPE,
-    top_n_topics: int = DEFAULT_TOP_N_TOPICS,
-    output_dir: Path | str = DEFAULT_OUTPUT_DIR,
-    run_visualisations: bool = False,
-) -> None:
-    """Load data, fit BERTopic, save model and results; optionally run visualisations."""
-    data_dir = Path(data_dir)
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # 2. Keep only English rows and remove duplicates by original_text
+    df = filter_language(df, lang="en")
+    df = remove_duplicates(df, text_column=text_column)
+    print(f"After lang filter and dedupe: {len(df)} rows.")
 
-    print("Loading and preprocessing tweets...")
-    documents, metadata = prepare_for_bertopic(
-        data_dir=data_dir,
+    # 3. Drop columns not needed for this use case
+    existing_drop = [c for c in COLUMNS_TO_DROP if c in df.columns]
+    df = df.drop(columns=existing_drop, errors="ignore")
+    print(f"Dropped columns: {existing_drop}")
+
+    # 4. Run full text preprocessing on the tweet column (applies preprocess_tweet to each row)
+    print("Preprocessing tweet text...")
+    df = preprocess_tweets(
+        df,
         text_column=text_column,
-        lang="en",
-        min_length=min_length,
-        dedupe=dedupe,
+        output_column=processed_column,
+    )
+    print(f"Preprocessed {len(df)} tweets.")
+
+    # 5. Extract documents and metadata for BERTopic (use processed text)
+    documents, metadata = get_documents(
+        df,
+        text_column=processed_column,
+        min_length=10,
+        return_metadata=True,
     )
     print(f"Documents for BERTopic: {len(documents)}")
 
     if not documents:
-        print("No documents after preprocessing. Exiting.")
-        return
+        print("No documents. Exiting.")
+        sys.exit(1)
 
-    print("Fitting BERTopic...")
-    model = BERTopic(
-        verbose=True,
-        calculate_probabilities=False,
-    )
-    topics, probs = model.fit_transform(documents)
-
-    # Save model
-    model_path = output_dir / "bertopic_model"
-    model.save(str(model_path))
-    print(f"Model saved to {model_path}")
-
-    # Save topic assignments (aligned to documents)
-    if metadata is not None:
-        metadata = metadata.copy()
-    else:
-        import pandas as pd
-        metadata = pd.DataFrame()
-    metadata["topic_id"] = topics
-    metadata["document"] = documents
-    results_path = output_dir / "topic_assignments.csv"
-    metadata.to_csv(results_path, index=False)
-    print(f"Topic assignments saved to {results_path}")
-
-    # Optional visualisations (no-op until utils.visualisation is implemented)
-    if run_visualisations:
-        try:
-            visualisation.visualise_topics(model, documents)
-        except NotImplementedError:
-            pass
-        try:
-            visualisation.plot_topic_barchart(model, top_n=top_n_topics)
-        except NotImplementedError:
-            pass
-        if metadata is not None and "created_at" in metadata.columns:
-            try:
-                visualisation.plot_topic_over_time(
-                    model, documents, metadata["created_at"].tolist()
-                )
-            except NotImplementedError:
-                pass
-
-    print("Done.")
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Run BERTopic on Covid-19 Twitter data")
-    parser.add_argument(
-        "--data-dir",
-        type=Path,
-        default=DEFAULT_DATA_DIR,
-        help="Directory containing Covid-19 Twitter CSV files",
-    )
-    parser.add_argument(
-        "--text-column",
-        default=DEFAULT_TEXT_COLUMN,
-        help="Column to use as document text",
-    )
-    parser.add_argument(
-        "--min-length",
-        type=int,
-        default=DEFAULT_MIN_LENGTH,
-        help="Minimum character length per document",
-    )
-    parser.add_argument(
-        "--no-dedupe",
-        action="store_true",
-        help="Disable deduplication by text",
-    )
-    parser.add_argument(
-        "--top-n-topics",
-        type=int,
-        default=DEFAULT_TOP_N_TOPICS,
-        help="Top N topics for barchart (when viz implemented)",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=DEFAULT_OUTPUT_DIR,
-        help="Directory for model and results",
-    )
-    parser.add_argument(
-        "--viz",
-        action="store_true",
-        help="Run visualisation stubs when implemented",
-    )
-    args = parser.parse_args()
-
-    run(
-        data_dir=args.data_dir,
-        text_column=args.text_column,
-        min_length=args.min_length,
-        dedupe=not args.no_dedupe,
-        top_n_topics=args.top_n_topics,
-        output_dir=args.output_dir,
-        run_visualisations=args.viz,
-    )
-
-
-if __name__ == "__main__":
-    main()
+    print("Building and fitting BERTopic pipeline...")
+    model, topics, probs = run_pipeline(documents)
+    print(f"Found {len(set(topics) - {-1})} topics (+ outliers -1).")
+    print("Topic info:", model.get_topic_info().head(10).to_string())
