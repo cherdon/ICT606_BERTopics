@@ -23,15 +23,11 @@ _root = Path(__file__).resolve().parents[1]
 if _root not in sys.path:
     sys.path.insert(0, str(_root))
 
-from utils.bertopic_pipeline import build_bertopic_pipeline, get_vectorizer_model, run_pipeline
+from utils.bertopic_pipeline import build_bertopic_pipeline, get_vectorizer_model, get_umap_model, get_hdbscan_model, run_pipeline
 from utils.metrics import topic_coherence_gensim, get_topic_overview
 from utils import prepare_documents_for_finetuning
+from utils.constants import COVID_STOPWORDS
 
-# Same COVID stopwords as run_bertopic
-COVID_STOPWORDS = [
-    "covid", "covid19", "covid_19", "covid-19", "covid__19",
-    "coronavirus", "pandemic", "covid19pandemic",
-]
 
 # ---------------------------------------------------------------------------
 # Config
@@ -60,6 +56,14 @@ def _run_single_experiment(
     min_df: int,
     max_df: float,
 ) -> dict:
+    finetuned_umap = get_umap_model(
+        n_neighbors=25,
+        min_dist=0.01
+    )
+    finetuned_hdbscan = get_hdbscan_model(
+        min_cluster_size=25,
+        min_samples=5
+    )
     """Run one BERTopic fit with the given vectorizer params; return coherence and topic overview."""
     vectorizer = get_vectorizer_model(
         ngram_range=ngram_range,
@@ -67,7 +71,11 @@ def _run_single_experiment(
         max_df=max_df,
         extra_stop_words=COVID_STOPWORDS,
     )
-    pipeline = build_bertopic_pipeline(vectorizer_model=vectorizer)
+    pipeline = build_bertopic_pipeline(
+        umap_model=finetuned_umap,
+        hdbscan_model=finetuned_hdbscan,
+        vectorizer_model=vectorizer
+    )
     model, topics, _ = run_pipeline(documents, build_fn=pipeline)
 
     coherence = topic_coherence_gensim(model, documents, top_n=10, coherence="c_v")

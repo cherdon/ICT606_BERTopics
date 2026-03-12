@@ -8,26 +8,8 @@ if _root not in sys.path:
 
 from utils.bertopic_pipeline import run_pipeline, build_bertopic_pipeline
 from utils.bertopic_pipeline import get_embedding_model, get_umap_model, get_hdbscan_model, get_representation_model, get_vectorizer_model, get_ctfidf_model
+from utils.constants import COVID_STOPWORDS, COLUMNS_TO_DROP
 
-# Columns to drop from the raw CSV (not needed for topic modeling)
-COLUMNS_TO_DROP = [
-    "id",
-    "source",
-    "hashtags",
-    "user_mentions",
-    "clean_tweet",
-    "compound",
-    "neg",
-    "neu",
-    "pos",
-    "lang",
-    "original_author",
-]
-# COVID-related terms to exclude from topic terms (too frequent / non-discriminative)
-COVID_STOPWORDS = [
-    "covid", "covid19", "covid_19", "covid-19", "covid__19",
-    "coronavirus", "pandemic", "covid19pandemic",
-]
 
 if __name__ == "__main__":
     from utils import (
@@ -83,7 +65,14 @@ if __name__ == "__main__":
     # CUSTOM PIPELINE
     # ---------------------------------------------------------------------------
     pipeline = build_bertopic_pipeline(
-        vectorizer_model=get_vectorizer_model(extra_stop_words=COVID_STOPWORDS)
+        umap_model=get_umap_model(n_neighbors=25, min_dist=0.01),
+        hdbscan_model=get_hdbscan_model(min_cluster_size=25, min_samples=5),
+        vectorizer_model=get_vectorizer_model(
+            ngram_range=(1,2),
+            min_df=5,
+            max_df=0.85,
+            extra_stop_words=COVID_STOPWORDS
+        )
     )
 
     print("Building and fitting BERTopic pipeline...")
