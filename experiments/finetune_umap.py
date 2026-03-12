@@ -21,15 +21,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from experiments.finetune_umap_worker import _umap_2d_worker
+from experiments.finetuning_workers import _umap_2d_worker
 from utils.bertopic_pipeline import get_embedding_model
-from utils import filter_language, get_documents, remove_duplicates
+from utils import prepare_documents_for_finetuning
 
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
 DEFAULT_DATA_DIR = _root / "data" / "covid19_twitter_dataset"
-DEFAULT_TEXT_COLUMN = "clean_tweet"
+DEFAULT_TEXT_COLUMN = "original_text"
+DEFAULT_PROCESSED_COLUMN = "processed_text"
 DEFAULT_MIN_LENGTH = 10
 DEFAULT_DEDUPE = True
 DEFAULT_MAX_DOCS = 20_000
@@ -47,78 +48,36 @@ MIN_DIST_VALUES = [0.0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
 
 # Fixed UMAP params when sweeping the other (sensible defaults for large corpora)
 FIXED_MIN_DIST = 0.0
-FIXED_N_NEIGHBORS = 50
+FIXED_N_NEIGHBORS = 25
 
-PLOTS_NEIGHBOURS_DIR = _root / "experiments" / "plots"
-PLOTS_DIST_DIR = _root / "experiments" / "plots"
-
-
-def load_covid_tweets_sampled(
-    data_dir: Path | str,
-    sample_per_file: int = SAMPLE_PER_FILE,
-    pattern: str = "*.csv",
-    random_state: int = 42,
-) -> pd.DataFrame:
-    """Load each CSV in data_dir, take a random sample of up to sample_per_file rows per file, then concat."""
-    data_path = Path(data_dir)
-    if not data_path.is_dir():
-        raise FileNotFoundError(f"Data directory not found: {data_dir}")
-    files = sorted(data_path.glob(pattern))
-    if not files:
-        raise FileNotFoundError(f"No files matching '{pattern}' in {data_dir}")
-
-    rng = np.random.default_rng(random_state)
-    dfs = []
-    for f in files:
-        df = pd.read_csv(
-            f,
-            encoding="utf-8",
-            encoding_errors="replace",
-            on_bad_lines="skip",
-        )
-        n = min(sample_per_file, len(df))
-        if n < len(df):
-            idx = rng.choice(len(df), size=n, replace=False)
-            df = df.iloc[idx].reset_index(drop=True)
-        dfs.append(df)
-    return pd.concat(dfs, ignore_index=True)
+PLOTS_NEIGHBOURS_DIR = _root / "experiments" / "plots" / "umap"
+PLOTS_DIST_DIR = _root / "experiments" / "plots" / "umap"
 
 
 def load_documents_and_embeddings(
     data_dir: Path | str = DEFAULT_DATA_DIR,
     text_column: str = DEFAULT_TEXT_COLUMN,
+    processed_column: str = DEFAULT_PROCESSED_COLUMN,
     min_length: int = DEFAULT_MIN_LENGTH,
     dedupe: bool = DEFAULT_DEDUPE,
     max_docs: int = DEFAULT_MAX_DOCS,
     random_state: int = 42,
 ):
-    """Load documents (4k per file, then cap at max_docs) and compute embeddings once."""
+    """Load documents via shared finetuning pipeline, then compute embeddings once."""
     print("Loading and preprocessing tweets (random 4k per file)...")
-    df = load_covid_tweets_sampled(
+    documents, _ = prepare_documents_for_finetuning(
         data_dir=data_dir,
+        text_column=text_column,
+        processed_column=processed_column,
+        min_length=min_length,
+        dedupe=dedupe,
+        max_docs=max_docs,
         sample_per_file=SAMPLE_PER_FILE,
         random_state=random_state,
     )
-    df = filter_language(df, lang="en")
-    if dedupe:
-        df = remove_duplicates(df, text_column=text_column)
-    documents, _ = get_documents(
-        df,
-        text_column=text_column,
-        min_length=min_length,
-        return_metadata=True,
-    )
     if not documents:
         raise SystemExit("No documents after preprocessing. Exiting.")
-
-    if len(documents) > max_docs:
-        rng = np.random.default_rng(random_state)
-        idx = rng.choice(len(documents), size=max_docs, replace=False)
-        documents = [documents[i] for i in sorted(idx)]
-        print(f"Capped to max_docs={max_docs}; using {len(documents)} documents.")
-    else:
-        print(f"Documents: {len(documents)}")
-
+    print(f"Documents: {len(documents)}")
     print("Computing embeddings...")
     embedding_model = get_embedding_model()
     embeddings = embedding_model.encode(documents, show_progress_bar=True)

@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+import numpy as np
 import pandas as pd
 
 try:
@@ -293,6 +294,105 @@ def load_covid_tweets(
     return pd.concat(dfs, ignore_index=True)
 
 
+def load_covid_tweets_sampled(
+    data_dir: str | Path,
+    sample_per_file: int = 4000,
+    pattern: str = "*.csv",
+    random_state: int = 42,
+) -> pd.DataFrame:
+    """Load each CSV in data_dir, take a random sample of up to sample_per_file rows per file, then concat.
+
+    Used by finetune_umap and finetune_hdbscan for consistent preprocessing with capped data.
+    """
+    data_path = Path(data_dir)
+    if not data_path.is_dir():
+        raise FileNotFoundError(f"Data directory not found: {data_dir}")
+    files = sorted(data_path.glob(pattern))
+    if not files:
+        raise FileNotFoundError(f"No files matching '{pattern}' in {data_dir}")
+
+    rng = np.random.default_rng(random_state)
+    dfs = []
+    for f in files:
+        df = pd.read_csv(
+            f,
+            encoding="utf-8",
+            encoding_errors="replace",
+            on_bad_lines="skip",
+        )
+        n = min(sample_per_file, len(df))
+        if n < len(df):
+            idx = rng.choice(len(df), size=n, replace=False)
+            df = df.iloc[idx].reset_index(drop=True)
+        dfs.append(df)
+    return pd.concat(dfs, ignore_index=True)
+
+
+def prepare_documents_for_finetuning(
+    data_dir: str | Path,
+    text_column: str = "original_text",
+    processed_column: str = "processed_text",
+    lang: str = "en",
+    min_length: int = 10,
+    dedupe: bool = True,
+    max_docs: Optional[int] = 20_000,
+    sample_per_file: int = 4000,
+    random_state: int = 42,
+    pattern: str = "*.csv",
+) -> Tuple[List[str], Optional[pd.DataFrame]]:
+    """Load Covid-19 tweets with same pipeline as run_bertopic, then return documents for finetuning.
+
+    Pipeline: load_covid_tweets_sampled → filter_language → remove_duplicates
+    → preprocess_tweets → get_documents → (optional) cap at max_docs.
+
+    Used by finetune_umap.py and finetune_hdbscan.py so preprocessing is identical.
+    Column dropping is not applied (not needed for UMAP/HDBSCAN visualisation).
+
+    Args:
+        data_dir: Directory containing Covid-19 Twitter CSV files.
+        text_column: Raw text column for dedupe and preprocessing input.
+        processed_column: Column name for preprocessed text (output of preprocess_tweets).
+        lang: Language code to keep (default "en").
+        min_length: Minimum character length per document.
+        dedupe: Whether to remove duplicate texts by text_column.
+        max_docs: If set, randomly subsample to this many documents; None = use all.
+        sample_per_file: Max rows to sample per CSV file before concat.
+        random_state: Seed for sampling and subsampling.
+        pattern: Glob pattern for CSV files.
+
+    Returns:
+        (documents, metadata) for use with embedding model and downstream finetuning.
+    """
+    df = load_covid_tweets_sampled(
+        data_dir=data_dir,
+        sample_per_file=sample_per_file,
+        pattern=pattern,
+        random_state=random_state,
+    )
+    df = filter_language(df, lang=lang)
+    if dedupe:
+        df = remove_duplicates(df, text_column=text_column)
+    df = preprocess_tweets(
+        df,
+        text_column=text_column,
+        output_column=processed_column,
+    )
+    documents, metadata = get_documents(
+        df,
+        text_column=processed_column,
+        min_length=min_length,
+        return_metadata=True,
+    )
+    if max_docs is not None and len(documents) > max_docs:
+        rng = np.random.default_rng(random_state)
+        idx = rng.choice(len(documents), size=max_docs, replace=False)
+        idx = sorted(idx)
+        documents = [documents[i] for i in idx]
+        if metadata is not None:
+            metadata = metadata.iloc[idx].reset_index(drop=True)
+    return documents, metadata
+
+
 def filter_language(df: pd.DataFrame, lang: str = "en") -> pd.DataFrame:
     """Restrict to rows where the language column equals the given code.
 
@@ -310,7 +410,7 @@ def filter_language(df: pd.DataFrame, lang: str = "en") -> pd.DataFrame:
 
 def remove_duplicates(
     df: pd.DataFrame,
-    text_column: str = "clean_tweet",
+    text_column: str = "original_text",
 ) -> pd.DataFrame:
     """Drop duplicate rows by the given text column, keeping first occurrence.
 
@@ -328,7 +428,7 @@ def remove_duplicates(
 
 def get_documents(
     df: pd.DataFrame,
-    text_column: str = "clean_tweet",
+    text_column: str = "processed_text",
     min_length: int = 10,
     return_metadata: bool = True,
 ) -> Tuple[List[str], Optional[pd.DataFrame]]:
@@ -372,9 +472,11 @@ def get_documents(
     return documents, metadata
 
 
+# TODO: Replace this with the shared pipeline flow (e.g. prepare_documents_for_finetuning
+# or a common pipeline that supports both full load and sampled load) for consistency.
 def prepare_for_bertopic(
     data_dir: str | Path,
-    text_column: str = "clean_tweet",
+    text_column: str = "processed_text",
     lang: str = "en",
     min_length: int = 10,
     dedupe: bool = True,
@@ -387,7 +489,7 @@ def prepare_for_bertopic(
 
     Args:
         data_dir: Directory containing Covid-19 Twitter CSV files.
-        text_column: Column to use as document text (default "clean_tweet").
+        text_column: Column to use as document text (default "processed_text").
         lang: Language code to keep (default "en").
         min_length: Minimum character length per document.
         dedupe: Whether to remove duplicate texts.

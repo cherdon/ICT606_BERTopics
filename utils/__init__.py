@@ -2,6 +2,8 @@
 
 from .preprocessing import (
     load_covid_tweets,
+    load_covid_tweets_sampled,
+    prepare_documents_for_finetuning,
     filter_language,
     remove_duplicates,
     get_documents,
@@ -21,6 +23,8 @@ from . import visualisation  # noqa: F401
 
 __all__ = [
     "load_covid_tweets",
+    "load_covid_tweets_sampled",
+    "prepare_documents_for_finetuning",
     "filter_language",
     "remove_duplicates",
     "get_documents",
