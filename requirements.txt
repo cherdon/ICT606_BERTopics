@@ -14,3 +14,4 @@ transformers>=4.44.0,<4.46.0
 llvmlite==0.43.0
 numba>=0.60.0,<0.61
 matplotlib
+gensim>=4.0.0

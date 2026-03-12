@@ -291,21 +291,21 @@ def run_pipeline(
         build_fn = build_bertopic_pipeline
 
     if callable(build_fn):
-        print("1. Building pipeline ...", flush=True)
+        print("Building pipeline ...", flush=True)
         t0 = time.perf_counter()
         model = build_fn()
-        print(f"1. Building pipeline completed in {time.perf_counter() - t0:.1f}s", flush=True)
+        print(f"Building pipeline completed in {time.perf_counter() - t0:.1f}s", flush=True)
     else:
         model = build_fn
-        print("1. Using pre-built pipeline.", flush=True)
+        print("Using pre-built pipeline.", flush=True)
 
     # Wrap internal steps so we can time each (step 1 = build above; 2–6 = fit)
     steps = [
-        ("2. Embedding", "_extract_embeddings"),
-        ("3. UMAP", "_reduce_dimensionality"),
-        ("4. HDBSCAN", "_cluster_embeddings"),
-        ("5. c-TF-IDF & topics", "_extract_topics"),
-        ("6. Topic vectors", "_create_topic_vectors"),
+        ("Embedding", "_extract_embeddings"),
+        ("UMAP", "_reduce_dimensionality"),
+        ("HDBSCAN", "_cluster_embeddings"),
+        ("c-TF-IDF & topics", "_extract_topics"),
+        ("Topic vectors", "_create_topic_vectors"),
     ]
     originals = {}
     for label, method_name in steps:

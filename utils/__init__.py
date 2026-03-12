@@ -20,6 +20,7 @@ from .preprocessing import (
     preprocess_tweets,
 )
 from . import visualisation  # noqa: F401
+from . import metrics  # noqa: F401
 
 __all__ = [
     "load_covid_tweets",
@@ -40,4 +41,5 @@ __all__ = [
     "preprocess_tweet_series",
     "preprocess_tweets",
     "visualisation",
+    "metrics",
 ]

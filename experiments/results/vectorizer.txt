@@ -1,0 +1,267 @@
+Vectorizer finetuning results (ngram_range, min_df, max_df)
+Coherence: gensim c_v. Top topics: up to 10 words per topic.
+
+============================================================
+ngram_range=(1, 1)  min_df=5  max_df=0.85
+============================================================
+Coherence (c_v): 0.3941
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['deaths', 'mortality', 'death', 'flu', 'cdc', 'deadly', '2020', 'killed', 'died', '100']
+  Topic 1: ['funding', 'fund', 'funds', 'charities', 'foundation', 'financial', 'donate', 'donated', 'finance', 'bank']
+  Topic 2: ['schools', 'school', 'students', 'student', 'outbreak', 'education', 'college', 'case', 'university', 'children']
+  Topic 3: ['mask', 'masking', 'faceface', 'face', 'nose', 'vaccinated', 'wearing', 'protect', 'prevent', 'hide']
+  Topic 4: ['china', 'chinese', 'outbreak', 'virus', 'australia', 'wuhan', 'usa', 'warns', 'investigation', 'corona']
+  Topic 5: ['died', 'dies', 'death', 'dead', 'killed', 'nurse', 'virus', 'hospital', 'loved', 'nursing']
+  Topic 6: ['vaccines', 'vaccine', 'vaccinated', 'vaccination', 'vaccinations', 'immunity', 'flu', 'antibody', 'immune', 'virus']
+  Topic 7: ['lockdown', 'lockdowns', 'suspend', 'restrictions', 'prison', 'curfew', 'delay', 'release', 'banned', 'curb']
+  Topic 8: ['infect', 'infected', 'positive', 'tested', 'virus', 'testing', 'tests', 'test', 'antibodies', 'health']
+  Topic 9: ['plague', 'corona', 'god', 'fuck', 'mess', 'right', 'truth', 'cr', 'just', '20']
+  Topic 10: ['modi', 'covidー19', 'gujarat', 'india', 'indian', 'bjp', 'crisis', 'narendramodi', 'delhi', 'indiafightscorona']
+  Topic 11: ['treatments', 'treatment', 'infection', 'medicine', 'cure', 'patients', 'immunity', 'inflammation', 'efficacy', 'clinical']
+  Topic 12: ['climate', 'pandemics', 'crises', 'crisis', 'leaders', 'leadership', 'mitigate', 'threat', 'responsibility', 'policy']
+  Topic 13: ['karnataka', 'deaths', 'fatalities', 'gujarat', 'pradesh', 'kerala', 'india', 'assam', 'indiafightscorona', 'bengaluru']
+  Topic 14: ['hearts', 'smiling', 'happy', 'heart', 'joy', 'birthday', 'day', 'loved', 'enjoy', 'lovely']
+============================================================
+ngram_range=(1, 1)  min_df=5  max_df=0.9
+============================================================
+Coherence (c_v): 0.3941
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['deaths', 'mortality', 'death', 'flu', 'cdc', 'deadly', '2020', 'killed', 'died', '100']
+  Topic 1: ['funding', 'fund', 'funds', 'charities', 'foundation', 'financial', 'donate', 'donated', 'finance', 'bank']
+  Topic 2: ['schools', 'school', 'students', 'student', 'outbreak', 'education', 'college', 'case', 'university', 'children']
+  Topic 3: ['mask', 'masking', 'faceface', 'face', 'nose', 'vaccinated', 'wearing', 'protect', 'prevent', 'hide']
+  Topic 4: ['china', 'chinese', 'outbreak', 'virus', 'australia', 'wuhan', 'usa', 'warns', 'investigation', 'corona']
+  Topic 5: ['died', 'dies', 'death', 'dead', 'killed', 'nurse', 'virus', 'hospital', 'loved', 'nursing']
+  Topic 6: ['vaccines', 'vaccine', 'vaccinated', 'vaccination', 'vaccinations', 'immunity', 'flu', 'antibody', 'immune', 'virus']
+  Topic 7: ['lockdown', 'lockdowns', 'suspend', 'restrictions', 'prison', 'curfew', 'delay', 'release', 'banned', 'curb']
+  Topic 8: ['infect', 'infected', 'positive', 'tested', 'virus', 'testing', 'tests', 'test', 'antibodies', 'health']
+  Topic 9: ['plague', 'corona', 'god', 'fuck', 'mess', 'right', 'truth', 'cr', 'just', '20']
+  Topic 10: ['modi', 'covidー19', 'gujarat', 'india', 'indian', 'bjp', 'crisis', 'narendramodi', 'delhi', 'indiafightscorona']
+  Topic 11: ['treatments', 'treatment', 'infection', 'medicine', 'cure', 'patients', 'immunity', 'inflammation', 'efficacy', 'clinical']
+  Topic 12: ['climate', 'pandemics', 'crises', 'crisis', 'leaders', 'leadership', 'mitigate', 'threat', 'responsibility', 'policy']
+  Topic 13: ['karnataka', 'deaths', 'fatalities', 'gujarat', 'pradesh', 'kerala', 'india', 'assam', 'indiafightscorona', 'bengaluru']
+  Topic 14: ['hearts', 'smiling', 'happy', 'heart', 'joy', 'birthday', 'day', 'loved', 'enjoy', 'lovely']
+============================================================
+ngram_range=(1, 1)  min_df=10  max_df=0.85
+============================================================
+Coherence (c_v): 0.3833
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['deaths', 'flu', 'cdc', 'death', 'dying', 'deadly', 'died', 'infections', 'killed', '2020']
+  Topic 1: ['economy', 'support', 'workers', 'businesses', 'efforts', 'provide', 'work', 'company', 'working', 'economic']
+  Topic 2: ['schools', 'students', 'school', 'education', 'university', 'college', 'kids', 'children', 'outbreaks', 'class']
+  Topic 3: ['index', 'backhand', 'pointing', 'infected', 'infectious', 'vaccinated', 'face', 'virus', 'medical', 'sick']
+  Topic 4: ['china', 'outbreak', 'virus', '2019', 'corona', 'lab', 'researchers', 'cov', 'usa', 'australia']
+  Topic 5: ['died', 'dies', 'death', 'dead', 'dying', 'killed', 'patients', 'hospital', 'die', 'care']
+  Topic 6: ['vaccines', 'vaccine', 'vaccinated', 'vaccination', 'flu', 'virus', 'shot', 'disease', 'fda', 'clinical']
+  Topic 7: ['lockdown', 'restrictions', 'release', 'issues', 'twitter', 'friday', 'released', 'delhi', 'level', 'decision']
+  Topic 8: ['tested', 'infected', 'positive', 'testing', 'tests', 'virus', 'test', 'quarantine', 'health', 'negative']
+  Topic 9: ['infectious', 'threat', '2020', 'corona', '2019', 'god', 'reason', 'providing', 'relief', 'situation']
+  Topic 10: ['india', 'outbreak', 'crisis', 'outbreaks', 'indian', 'delhi', 'narendramodi', 'virus', 'govt', 'news']
+  Topic 11: ['treatment', 'infection', 'fda', 'disease', 'patients', 'clinical', 'treat', 'drug', 'outbreaks', '2019']
+  Topic 12: ['leaders', 'leadership', 'crisis', 'president', 'threat', 'governor', 'efforts', 'government', 'govt', 'policy']
+  Topic 13: ['deaths', 'highest', 'india', 'delhi', 'infections', '200', 'death', 'corona', 'police', 'positive']
+  Topic 14: ['happy', 'heart', 'joy', 'loved', 'love', 'day', 'hello', 'thank', 'life', 'hey']
+============================================================
+ngram_range=(1, 1)  min_df=10  max_df=0.9
+============================================================
+Coherence (c_v): 0.3833
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['deaths', 'flu', 'cdc', 'death', 'dying', 'deadly', 'died', 'infections', 'killed', '2020']
+  Topic 1: ['economy', 'support', 'workers', 'businesses', 'efforts', 'provide', 'work', 'company', 'working', 'economic']
+  Topic 2: ['schools', 'students', 'school', 'education', 'university', 'college', 'kids', 'children', 'outbreaks', 'class']
+  Topic 3: ['index', 'backhand', 'pointing', 'infected', 'infectious', 'vaccinated', 'face', 'virus', 'medical', 'sick']
+  Topic 4: ['china', 'outbreak', 'virus', '2019', 'corona', 'lab', 'researchers', 'cov', 'usa', 'australia']
+  Topic 5: ['died', 'dies', 'death', 'dead', 'dying', 'killed', 'patients', 'hospital', 'die', 'care']
+  Topic 6: ['vaccines', 'vaccine', 'vaccinated', 'vaccination', 'flu', 'virus', 'shot', 'disease', 'fda', 'clinical']
+  Topic 7: ['lockdown', 'restrictions', 'release', 'issues', 'twitter', 'friday', 'released', 'delhi', 'level', 'decision']
+  Topic 8: ['tested', 'infected', 'positive', 'testing', 'tests', 'virus', 'test', 'quarantine', 'health', 'negative']
+  Topic 9: ['infectious', 'threat', '2020', 'corona', '2019', 'god', 'reason', 'providing', 'relief', 'situation']
+  Topic 10: ['india', 'outbreak', 'crisis', 'outbreaks', 'indian', 'delhi', 'narendramodi', 'virus', 'govt', 'news']
+  Topic 11: ['treatment', 'infection', 'fda', 'disease', 'patients', 'clinical', 'treat', 'drug', 'outbreaks', '2019']
+  Topic 12: ['leaders', 'leadership', 'crisis', 'president', 'threat', 'governor', 'efforts', 'government', 'govt', 'policy']
+  Topic 13: ['deaths', 'highest', 'india', 'delhi', 'infections', '200', 'death', 'corona', 'police', 'positive']
+  Topic 14: ['happy', 'heart', 'joy', 'loved', 'love', 'day', 'hello', 'thank', 'life', 'hey']
+============================================================
+ngram_range=(1, 1)  min_df=20  max_df=0.85
+============================================================
+Coherence (c_v): 0.3202
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['deaths', 'death', 'died', 'cases', 'patients', 'infections', 'hospital', 'infection', 'die', 'hospitals']
+  Topic 1: ['workers', 'support', 'work', 'working', 'staff', 'care', 'recovery', 'crisis', 'americans', 'government']
+  Topic 2: ['university', 'going', 'guidance', 'spread', 'crisis', 'cases', 'issues', 'following', 'support', 'public']
+  Topic 3: ['face', 'patients', 'medical', 'infected', 'infections', 'dr', 'policy', 'care', 'virus', 'restrictions']
+  Topic 4: ['virus', 'outbreak', 'disease', 'news', 'article', 'world', 'international', 'doctors', 'report', 'trump']
+  Topic 5: ['died', 'patients', 'death', 'hospital', 'infected', 'disease', 'virus', 'die', 'care', 'dr']
+  Topic 6: ['vaccine', 'vaccination', 'infected', 'virus', 'disease', 'dr', 'health', 'medical', '2020', 'taking']
+  Topic 7: ['lockdown', 'restrictions', 'safe', 'stay', 'issues', 'hi', 'minister', '2021', 'india', 'breaking']
+  Topic 8: ['infection', 'infected', 'positive', 'testing', 'tested', 'tests', 'infections', 'virus', 'test', 'health']
+  Topic 9: ['2020', 'infected', 'virus', 'crisis', 'end', 'corona', 'continue', 'continues', 'soon', 'stop']
+  Topic 10: ['outbreak', 'india', 'virus', 'infection', 'infections', 'crisis', 'govt', '2021', 'news', 'avoid']
+  Topic 11: ['treatment', 'infection', 'infections', 'patients', 'disease', 'medical', 'recovery', 'dr', 'health', 'doctors']
+  Topic 12: ['crisis', 'policy', 'health', 'government', 'disease', 'change', 'campaign', 'govt', 'minister', 'lives']
+  Topic 13: ['deaths', 'india', 'latest', 'infections', 'vaccination', 'death', 'govt', 'health', '2021', 'patients']
+  Topic 14: ['heart', 'day', 'life', 'care', 'stay', 'world', 'thank', 'friends', 'doing', 'red']
+============================================================
+ngram_range=(1, 1)  min_df=20  max_df=0.9
+============================================================
+Coherence (c_v): 0.3202
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['deaths', 'death', 'died', 'cases', 'patients', 'infections', 'hospital', 'infection', 'die', 'hospitals']
+  Topic 1: ['workers', 'support', 'work', 'working', 'staff', 'care', 'recovery', 'crisis', 'americans', 'government']
+  Topic 2: ['university', 'going', 'guidance', 'spread', 'crisis', 'cases', 'issues', 'following', 'support', 'public']
+  Topic 3: ['face', 'patients', 'medical', 'infected', 'infections', 'dr', 'policy', 'care', 'virus', 'restrictions']
+  Topic 4: ['virus', 'outbreak', 'disease', 'news', 'article', 'world', 'international', 'doctors', 'report', 'trump']
+  Topic 5: ['died', 'patients', 'death', 'hospital', 'infected', 'disease', 'virus', 'die', 'care', 'dr']
+  Topic 6: ['vaccine', 'vaccination', 'infected', 'virus', 'disease', 'dr', 'health', 'medical', '2020', 'taking']
+  Topic 7: ['lockdown', 'restrictions', 'safe', 'stay', 'issues', 'hi', 'minister', '2021', 'india', 'breaking']
+  Topic 8: ['infection', 'infected', 'positive', 'testing', 'tested', 'tests', 'infections', 'virus', 'test', 'health']
+  Topic 9: ['2020', 'infected', 'virus', 'crisis', 'end', 'corona', 'continue', 'continues', 'soon', 'stop']
+  Topic 10: ['outbreak', 'india', 'virus', 'infection', 'infections', 'crisis', 'govt', '2021', 'news', 'avoid']
+  Topic 11: ['treatment', 'infection', 'infections', 'patients', 'disease', 'medical', 'recovery', 'dr', 'health', 'doctors']
+  Topic 12: ['crisis', 'policy', 'health', 'government', 'disease', 'change', 'campaign', 'govt', 'minister', 'lives']
+  Topic 13: ['deaths', 'india', 'latest', 'infections', 'vaccination', 'death', 'govt', 'health', '2021', 'patients']
+  Topic 14: ['heart', 'day', 'life', 'care', 'stay', 'world', 'thank', 'friends', 'doing', 'red']
+============================================================
+ngram_range=(1, 2)  min_df=5  max_df=0.85
+============================================================
+Coherence (c_v): 0.4009
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['19 deaths', 'deaths 19', '19 cases', 'cases deaths', '19 death', 'deaths reported', 'cases 19', 'deaths', 'new deaths', '19 case']
+  Topic 1: ['funding', 'fund', 'charities', 'funds', '19 relief', 'donate', 'donated', '19 crisis', 'million 19', 'foundation']
+  Topic 2: ['schools', 'students', 'school', 'high school', 'student', 'education', 'college', 'children', 'kids', 'classes']
+  Topic 3: ['mask', 'masking', 'face', 'faceface', 'nose', 'wearing', 'fully vaccinated', 'vaccinated', 'hide', 'protect']
+  Topic 4: ['china', 'chinese', '19 virus', '19 outbreak', 'origins 19', 'outbreak', 'virus', 'australia', 'wuhan', 'usa']
+  Topic 5: ['died 19', 'dies 19', '19 death', 'dead 19', 'died', 'dies', 'people died', 'death', 'dead', 'killed']
+  Topic 6: ['19 vaccines', '19 vaccine', 'vaccine available', 'vaccinated 19', 'vaccines', '19 vaccination', 'vaccine', 'vaccinated', 'vaccination', 'vaccinations']
+  Topic 7: ['lockdown', 'lockdowns', '19 lockdown', 'suspend', 'restrictions', 'prison', 'curfew', 'delay', 'release', 'banned']
+  Topic 8: ['tested positive', 'testing positive', 'tests positive', 'test positive', '19 test', '19 testing', 'tests 19', '19 positive', '19 tests', 'infect']
+  Topic 9: ['19 2020', '2020 19', 'people infected', 'situation 19', 'recover 19', 'plague', '19 situation', '19 continue', 'know 19', '19 time']
+  Topic 10: ['india 19', '19 india', 'covidー19', '19 crisis', 'india', 'gujarat', 'modi', 'delhi', 'bjp', 'kerala']
+  Topic 11: ['treatment 19', '19 treatment', '19 patients', 'infection', 'treatment', 'treatments', 'cure', 'medicine', 'patients', 'inflammation']
+  Topic 12: ['climate', '19 crisis', 'crises', 'leaders', 'crisis', 'leadership', 'responsibility', 'threat', 'government', 'policy']
+  Topic 13: ['19 deaths', 'deaths reported', '19 india', '19 cases', '19 death', 'death toll', 'deaths', 'fatalities', 'highest daily', 'deaths 24']
+  Topic 14: ['hearts', 'heart', 'happy', 'smiling', 'face smiling', 'smiling face', 'red heart', 'joy', 'tears joy', 'loved']
+============================================================
+ngram_range=(1, 2)  min_df=5  max_df=0.9
+============================================================
+Coherence (c_v): 0.4009
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['19 deaths', 'deaths 19', '19 cases', 'cases deaths', '19 death', 'deaths reported', 'cases 19', 'deaths', 'new deaths', '19 case']
+  Topic 1: ['funding', 'fund', 'charities', 'funds', '19 relief', 'donate', 'donated', '19 crisis', 'million 19', 'foundation']
+  Topic 2: ['schools', 'students', 'school', 'high school', 'student', 'education', 'college', 'children', 'kids', 'classes']
+  Topic 3: ['mask', 'masking', 'face', 'faceface', 'nose', 'wearing', 'fully vaccinated', 'vaccinated', 'hide', 'protect']
+  Topic 4: ['china', 'chinese', '19 virus', '19 outbreak', 'origins 19', 'outbreak', 'virus', 'australia', 'wuhan', 'usa']
+  Topic 5: ['died 19', 'dies 19', '19 death', 'dead 19', 'died', 'dies', 'people died', 'death', 'dead', 'killed']
+  Topic 6: ['19 vaccines', '19 vaccine', 'vaccine available', 'vaccinated 19', 'vaccines', '19 vaccination', 'vaccine', 'vaccinated', 'vaccination', 'vaccinations']
+  Topic 7: ['lockdown', 'lockdowns', '19 lockdown', 'suspend', 'restrictions', 'prison', 'curfew', 'delay', 'release', 'banned']
+  Topic 8: ['tested positive', 'testing positive', 'tests positive', 'test positive', '19 test', '19 testing', 'tests 19', '19 positive', '19 tests', 'infect']
+  Topic 9: ['19 2020', '2020 19', 'people infected', 'situation 19', 'recover 19', 'plague', '19 situation', '19 continue', 'know 19', '19 time']
+  Topic 10: ['india 19', '19 india', 'covidー19', '19 crisis', 'india', 'gujarat', 'modi', 'delhi', 'bjp', 'kerala']
+  Topic 11: ['treatment 19', '19 treatment', '19 patients', 'infection', 'treatment', 'treatments', 'cure', 'medicine', 'patients', 'inflammation']
+  Topic 12: ['climate', '19 crisis', 'crises', 'leaders', 'crisis', 'leadership', 'responsibility', 'threat', 'government', 'policy']
+  Topic 13: ['19 deaths', 'deaths reported', '19 india', '19 cases', '19 death', 'death toll', 'deaths', 'fatalities', 'highest daily', 'deaths 24']
+  Topic 14: ['hearts', 'heart', 'happy', 'smiling', 'face smiling', 'smiling face', 'red heart', 'joy', 'tears joy', 'loved']
+============================================================
+ngram_range=(1, 2)  min_df=10  max_df=0.85
+============================================================
+Coherence (c_v): 0.3727
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['19 deaths', 'deaths 19', 'cases deaths', '19 infections', '19 cases', '19 death', 'deaths', 'cases 19', '19 case', 'new cases']
+  Topic 1: ['economy', 'support', 'workers', '19 crisis', 'businesses', 'efforts', 'provide', 'work', 'company', 'working']
+  Topic 2: ['schools', 'students', 'school', 'education', 'university', 'college', 'kids', 'children', 'outbreaks', 'class']
+  Topic 3: ['backhand index', 'index pointing', 'index', 'pointing right', 'backhand', 'infected', 'pointing', 'virus', 'vaccinated', 'fully vaccinated']
+  Topic 4: ['china', '19 virus', '19 outbreak', 'outbreak', 'virus', '2019', 'corona', 'lab', 'researchers', 'cov']
+  Topic 5: ['19 death', 'died', 'dies', 'death', 'die 19', 'dead', 'killed', 'patients', '19 patients', 'hospital']
+  Topic 6: ['19 vaccines', '19 vaccine', '19 vaccination', 'vaccines', 'vaccine', 'vaccinated', 'vaccination', 'flu', 'virus', 'shot']
+  Topic 7: ['lockdown', '19 lockdown', 'restrictions', 'decision', 'release', 'delhi', 'released', 'tomorrow', 'going', 'decided']
+  Topic 8: ['tested positive', 'testing positive', 'tested 19', '19 test', '19 testing', '19 positive', '19 tests', 'positive 19', 'tested', 'infected']
+  Topic 9: ['infected 19', '19 situation', '2020', 'threat', '2019', 'people 19', 'corona', 'situation', '19 just', 'seriously']
+  Topic 10: ['india', 'indian', 'outbreak', '19 crisis', 'delhi', 'virus', 'amid 19', 'wave 19', 'crisis', 'china']
+  Topic 11: ['19 treatment', '19 patients', 'treatment', 'infection', 'fda', 'patients', 'disease', 'drug', 'clinical', 'treat']
+  Topic 12: ['leaders', 'leadership', '19 crisis', 'crisis', 'president', 'threat', 'governor', 'public health', 'efforts', 'government']
+  Topic 13: ['19 deaths', 'cases deaths', 'death toll', '19 death', '19 cases', 'deaths', 'india', '19 update', 'delhi', 'highest']
+  Topic 14: ['happy', 'heart', 'joy', 'tears joy', 'loved', 'love', 'day', 'hello', 'thank', 'life']
+============================================================
+ngram_range=(1, 2)  min_df=10  max_df=0.9
+============================================================
+Coherence (c_v): 0.3727
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['19 deaths', 'deaths 19', 'cases deaths', '19 infections', '19 cases', '19 death', 'deaths', 'cases 19', '19 case', 'new cases']
+  Topic 1: ['economy', 'support', 'workers', '19 crisis', 'businesses', 'efforts', 'provide', 'work', 'company', 'working']
+  Topic 2: ['schools', 'students', 'school', 'education', 'university', 'college', 'kids', 'children', 'outbreaks', 'class']
+  Topic 3: ['backhand index', 'index pointing', 'index', 'pointing right', 'backhand', 'infected', 'pointing', 'virus', 'vaccinated', 'fully vaccinated']
+  Topic 4: ['china', '19 virus', '19 outbreak', 'outbreak', 'virus', '2019', 'corona', 'lab', 'researchers', 'cov']
+  Topic 5: ['19 death', 'died', 'dies', 'death', 'die 19', 'dead', 'killed', 'patients', '19 patients', 'hospital']
+  Topic 6: ['19 vaccines', '19 vaccine', '19 vaccination', 'vaccines', 'vaccine', 'vaccinated', 'vaccination', 'flu', 'virus', 'shot']
+  Topic 7: ['lockdown', '19 lockdown', 'restrictions', 'decision', 'release', 'delhi', 'released', 'tomorrow', 'going', 'decided']
+  Topic 8: ['tested positive', 'testing positive', 'tested 19', '19 test', '19 testing', '19 positive', '19 tests', 'positive 19', 'tested', 'infected']
+  Topic 9: ['infected 19', '19 situation', '2020', 'threat', '2019', 'people 19', 'corona', 'situation', '19 just', 'seriously']
+  Topic 10: ['india', 'indian', 'outbreak', '19 crisis', 'delhi', 'virus', 'amid 19', 'wave 19', 'crisis', 'china']
+  Topic 11: ['19 treatment', '19 patients', 'treatment', 'infection', 'fda', 'patients', 'disease', 'drug', 'clinical', 'treat']
+  Topic 12: ['leaders', 'leadership', '19 crisis', 'crisis', 'president', 'threat', 'governor', 'public health', 'efforts', 'government']
+  Topic 13: ['19 deaths', 'cases deaths', 'death toll', '19 death', '19 cases', 'deaths', 'india', '19 update', 'delhi', 'highest']
+  Topic 14: ['happy', 'heart', 'joy', 'tears joy', 'loved', 'love', 'day', 'hello', 'thank', 'life']
+============================================================
+ngram_range=(1, 2)  min_df=20  max_df=0.85
+============================================================
+Coherence (c_v): 0.3145
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['19 cases', 'deaths', 'new 19', 'death', 'infections', 'infection', 'positive 19', 'died', 'patients', '100']
+  Topic 1: ['workers', 'support', 'work', '19 crisis', 'working', 'staff', 'care', 'recovery', 'crisis', 'americans']
+  Topic 2: ['university', '19 crisis', 'going', 'guidance', 'spread', 'spread 19', 'crisis', 'issues', 'following', 'support']
+  Topic 3: ['index pointing', 'index', 'pointing', 'infected', 'virus', 'care', 'dr', 'medical', 'patients', 'spread 19']
+  Topic 4: ['virus', 'outbreak', 'disease', 'news', 'world', 'international', 'doctors', 'report', 'trump', 'police']
+  Topic 5: ['died', 'patients', 'death', '19 patients', 'hospital', 'infected', 'disease', 'virus', 'die', 'care']
+  Topic 6: ['19 vaccine', 'vaccine', 'vaccination', 'virus', 'spread 19', 'disease', '2020', '19 19', 'dr', 'latest']
+  Topic 7: ['lockdown', 'restrictions', 'safe', 'stay', 'issues', 'hi', 'minister', '2021', 'india', 'breaking']
+  Topic 8: ['positive 19', 'tested', 'infected', 'infection', 'testing', 'positive', 'tests', 'virus', 'test', 'infections']
+  Topic 9: ['2020', 'infected', 'new 19', 'virus', 'crisis', 'end', 'corona', '19 19', 'continue', 'continues']
+  Topic 10: ['outbreak', 'india', '19 crisis', 'virus', 'infection', 'infections', '19 patients', 'crisis', '19 cases', '2021']
+  Topic 11: ['19 patients', 'treatment', 'infection', 'infections', 'patients', 'disease', 'medical', 'recovery', 'dr', 'health']
+  Topic 12: ['19 crisis', 'crisis', 'policy', 'health', 'government', 'disease', 'campaign', 'minister', 'change', 'govt']
+  Topic 13: ['19 cases', '19 patients', 'deaths', 'india', '19 crisis', 'infections', 'latest', 'hospitals', 'corona', 'death']
+  Topic 14: ['heart', 'day', 'life', 'care', 'stay', 'world', 'thank', 'friends', 'doing', 'red']
+============================================================
+ngram_range=(1, 2)  min_df=20  max_df=0.9
+============================================================
+Coherence (c_v): 0.3145
+Number of topics (excl. outliers): 128
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['19 cases', 'deaths', 'new 19', 'death', 'infections', 'infection', 'positive 19', 'died', 'patients', '100']
+  Topic 1: ['workers', 'support', 'work', '19 crisis', 'working', 'staff', 'care', 'recovery', 'crisis', 'americans']
+  Topic 2: ['university', '19 crisis', 'going', 'guidance', 'spread', 'spread 19', 'crisis', 'issues', 'following', 'support']
+  Topic 3: ['index pointing', 'index', 'pointing', 'infected', 'virus', 'care', 'dr', 'medical', 'patients', 'spread 19']
+  Topic 4: ['virus', 'outbreak', 'disease', 'news', 'world', 'international', 'doctors', 'report', 'trump', 'police']
+  Topic 5: ['died', 'patients', 'death', '19 patients', 'hospital', 'infected', 'disease', 'virus', 'die', 'care']
+  Topic 6: ['19 vaccine', 'vaccine', 'vaccination', 'virus', 'spread 19', 'disease', '2020', '19 19', 'dr', 'latest']
+  Topic 7: ['lockdown', 'restrictions', 'safe', 'stay', 'issues', 'hi', 'minister', '2021', 'india', 'breaking']
+  Topic 8: ['positive 19', 'tested', 'infected', 'infection', 'testing', 'positive', 'tests', 'virus', 'test', 'infections']
+  Topic 9: ['2020', 'infected', 'new 19', 'virus', 'crisis', 'end', 'corona', '19 19', 'continue', 'continues']
+  Topic 10: ['outbreak', 'india', '19 crisis', 'virus', 'infection', 'infections', '19 patients', 'crisis', '19 cases', '2021']
+  Topic 11: ['19 patients', 'treatment', 'infection', 'infections', 'patients', 'disease', 'medical', 'recovery', 'dr', 'health']
+  Topic 12: ['19 crisis', 'crisis', 'policy', 'health', 'government', 'disease', 'campaign', 'minister', 'change', 'govt']
+  Topic 13: ['19 cases', '19 patients', 'deaths', 'india', '19 crisis', 'infections', 'latest', 'hospitals', 'corona', 'death']
+  Topic 14: ['heart', 'day', 'life', 'care', 'stay', 'world', 'thank', 'friends', 'doing', 'red']
