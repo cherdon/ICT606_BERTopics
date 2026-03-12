@@ -1,0 +1,91 @@
+c-TF-IDF finetuning results (bm25_weighting, reduce_frequent_words)
+Coherence: gensim c_v. Top topics: up to 10 words per topic.
+
+============================================================
+bm25_weighting=False  reduce_frequent_words=False
+============================================================
+Coherence (c_v): 0.4140
+Number of topics (excl. outliers): 64
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['vaccines', 'vaccine', 'vaccination', 'vaccinated', 'fully vaccinated', 'immunity', 'flu', 'immune', 'shot', 'fda']
+  Topic 1: ['india', 'delhi', 'indian', 'modi', 'mumbai', 'indiafightscorona', 'indians', 'karnataka', 'pakistan', 'crisis']
+  Topic 2: ['tested positive', 'testing positive', 'tests positive', 'test positive', 'positive tests', 'positive test', 'tested', 'positive', 'testing', 'tests']
+  Topic 3: ['schools', 'students', 'school', 'student', 'campus', 'education', 'college', 'children', 'university', 'kids']
+  Topic 4: ['corona virus', 'cases deaths', 'corona', 'new deaths', 'deaths', 'death toll', 'outbreaks', 'cases confirmed', 'new cases', 'fatalities']
+  Topic 5: ['masks', 'mask', 'masking', 'face', 'vaccinated', 'protect', 'fully vaccinated', 'prevent', 'protection', 'protective']
+  Topic 6: ['china', 'chinese', 'australia', 'origin', 'investigation', 'evidence', 'lab', 'usa', 'claims', 'country']
+  Topic 7: ['death toll', 'number deaths', 'total deaths', '000 deaths', 'deaths', 'mortality', 'fatalities', 'new deaths', 'people died', 'thousands']
+  Topic 8: ['lockdown', 'lockdowns', 'suspend', 'restrictions', 'curfew', 'prison', 'delay', 'banned', 'curb', 'released']
+  Topic 9: ['died', 'dies', 'people died', 'death', 'dead', 'alive', 'die', 'disease', 'patients', 'virus']
+  Topic 10: ['hearts', 'heart', 'face smiling', 'red heart', 'smiling face', 'smiling', 'smiling eyes', 'happy', 'tears joyface', 'tears joy']
+  Topic 11: ['cases reported', 'cases today', 'new cases', 'cases confirmed', 'confirmed cases', 'total cases', 'daily cases', 'active cases', 'new deaths', 'cases']
+  Topic 12: ['boris', 'johnson', 'minister', 'prime minister', 'ministers', 'policy', 'scotland', 'british', 'britain', 'warns']
+  Topic 13: ['realdonaldtrump', 'trump administration', 'president trump', 'trump', 'donald', 'donald trump', 'president', 'white house', 'gop', 'obama']
+  Topic 14: ['africa', 'south africa', 'uganda', 'kenya', 'african', 'tanzania', 'epidemic', 'outbreak', 'flu', 'sa']
+============================================================
+bm25_weighting=False  reduce_frequent_words=True
+============================================================
+Coherence (c_v): 0.3973
+Number of topics (excl. outliers): 64
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['fully vaccinated', 'vaccinated', 'vaccination', 'vaccine', 'vaccines', 'immunity', 'flu', 'immune', 'shot', 'jabs']
+  Topic 1: ['india', 'delhi', 'mumbai', 'bengaluru', 'indian', 'indiafightscorona', 'karnataka', 'cases today', 'highest', 'deaths reported']
+  Topic 2: ['tested positive', 'testing positive', 'tests positive', 'test positive', 'positive tests', 'positive test', 'confirmed positive', 'positive', 'tested', 'testing']
+  Topic 3: ['schools', 'students', 'school', 'student', 'education', 'classes', 'attend', 'kids', 'positive case', 'campus']
+  Topic 4: ['corona virus', 'cases deaths', 'corona', 'new deaths', 'cases confirmed', 'outbreaks', 'deaths', 'confirmed cases', 'new cases', 'virus']
+  Topic 5: ['masks', 'mask', 'masking', 'face', 'vaccinated', 'fully vaccinated', 'clinic', 'protect', 'protection', 'cdc']
+  Topic 6: ['evidence', 'lab', 'outbreak', 'virus', 'investigation', 'chinese', 'scientific', 'scientists', 'plague', 'claims']
+  Topic 7: ['death toll', 'number deaths', '000 deaths', 'total deaths', 'deaths', 'mortality', 'new deaths', 'fatalities', 'people died', 'toll']
+  Topic 8: ['lockdown', 'lockdowns', 'suspend', 'restrictions', 'curfew', 'delay', 'imposed', 'easing', 'karnataka', 'guidelines']
+  Topic 9: ['dies', 'died', 'death', 'people died', 'die', 'dead', 'aged', 'hospital', 'lives lost', 'alive']
+  Topic 10: ['face smiling', 'smiling face', 'smiling eyes', 'joyface tears', 'tears joyface', 'smiling', 'joyface', 'grinning face', 'tears joy', 'joy']
+  Topic 11: ['cases reported', 'cases today', 'cases confirmed', 'new cases', 'total cases', 'daily cases', 'confirmed cases', 'new deaths', 'cases day', 'active cases']
+  Topic 12: ['boris', 'covidiots', 'johnson', 'minister', 'britain', 'united_kingdom', 'british', 'prime minister', 'scotland', 'ministers']
+  Topic 13: ['realdonaldtrump', 'trump administration', 'president donald', 'president trump', 'trump', 'donald', 'donald trump', 'president', 'white house', 'politico']
+  Topic 14: ['south africa', 'africa', 'uganda', 'tanzania', 'sa', 'epidemic', 'african', 'kenya', 'south', 'countries']
+============================================================
+bm25_weighting=True  reduce_frequent_words=False
+============================================================
+Coherence (c_v): 0.4063
+Number of topics (excl. outliers): 64
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['vaccines', 'vaccine', 'fully vaccinated', 'vaccination', 'vaccinated', 'immunity', 'flu', 'immune', 'shot', 'fda']
+  Topic 1: ['india', 'modi', 'delhi', 'indian', 'indiafightscorona', 'mumbai', 'crisis', 'indians', 'pakistan', 'karnataka']
+  Topic 2: ['tested positive', 'testing positive', 'tests positive', 'test positive', 'positive tests', 'positive test', 'tested', 'positive', 'testing', 'tests']
+  Topic 3: ['schools', 'school', 'students', 'student', 'education', 'campus', 'college', 'outbreak', 'children', 'kids']
+  Topic 4: ['corona virus', 'cases deaths', 'corona', 'new deaths', 'deaths', 'death toll', 'outbreaks', 'cases confirmed', 'new cases', 'fatalities']
+  Topic 5: ['masks', 'mask', 'masking', 'face', 'vaccinated', 'protect', 'fully vaccinated', 'prevent', 'protection', 'protective']
+  Topic 6: ['china', 'chinese', 'australia', 'origin', 'investigation', 'evidence', 'lab', 'usa', 'claims', 'country']
+  Topic 7: ['death toll', 'number deaths', 'total deaths', '000 deaths', 'deaths', 'mortality', 'fatalities', 'new deaths', 'people died', 'thousands']
+  Topic 8: ['lockdown', 'lockdowns', 'suspend', 'restrictions', 'curfew', 'prison', 'delay', 'banned', 'curb', 'released']
+  Topic 9: ['died', 'dies', 'people died', 'death', 'dead', 'alive', 'die', 'disease', 'patients', 'aged']
+  Topic 10: ['hearts', 'heart', 'face smiling', 'red heart', 'smiling face', 'smiling', 'smiling eyes', 'happy', 'tears joyface', 'tears joy']
+  Topic 11: ['cases reported', 'cases today', 'new cases', 'cases confirmed', 'confirmed cases', 'new deaths', 'total cases', 'daily cases', 'cases day', 'active cases']
+  Topic 12: ['boris', 'johnson', 'minister', 'prime minister', 'policy', 'ministers', 'warns', 'britain', 'scotland', 'nation']
+  Topic 13: ['realdonaldtrump', 'trump administration', 'president trump', 'trump', 'donald', 'donald trump', 'president', 'white house', 'gop', 'obama']
+  Topic 14: ['africa', 'south africa', 'uganda', 'kenya', 'african', 'tanzania', 'epidemic', 'outbreak', 'flu', 'sa']
+============================================================
+bm25_weighting=True  reduce_frequent_words=True
+============================================================
+Coherence (c_v): 0.3935
+Number of topics (excl. outliers): 64
+
+Top topics (by size) – top 10 words each:
+  Topic 0: ['fully vaccinated', 'vaccinated', 'vaccination', 'vaccine', 'vaccines', 'immunity', 'flu', 'immune', 'shot', 'jabs']
+  Topic 1: ['india', 'delhi', 'mumbai', 'bengaluru', 'indiafightscorona', 'indian', 'karnataka', 'cases today', 'tamilnadu', 'highest']
+  Topic 2: ['tested positive', 'testing positive', 'tests positive', 'test positive', 'positive tests', 'positive test', 'confirmed positive', 'positive', 'tested', 'testing']
+  Topic 3: ['schools', 'students', 'school', 'student', 'education', 'classes', 'attend', 'kids', 'positive case', 'campus']
+  Topic 4: ['corona virus', 'cases deaths', 'corona', 'new deaths', 'cases confirmed', 'outbreaks', 'deaths', 'confirmed cases', 'new cases', 'infected']
+  Topic 5: ['masks', 'mask', 'masking', 'face', 'vaccinated', 'fully vaccinated', 'clinic', 'protect', 'protection', 'cdc']
+  Topic 6: ['evidence', 'lab', 'outbreak', 'virus', 'investigation', 'chinese', 'scientific', 'scientists', 'plague', 'claims']
+  Topic 7: ['death toll', 'number deaths', '000 deaths', 'total deaths', 'deaths', 'mortality', 'new deaths', 'fatalities', 'people died', 'toll']
+  Topic 8: ['lockdown', 'lockdowns', 'suspend', 'restrictions', 'curfew', 'delay', 'imposed', 'easing', 'karnataka', 'guidelines']
+  Topic 9: ['dies', 'died', 'death', 'people died', 'die', 'dead', 'aged', 'hospital', 'lives lost', 'alive']
+  Topic 10: ['face smiling', 'smiling face', 'smiling eyes', 'joyface tears', 'tears joyface', 'smiling', 'joyface', 'grinning face', 'tears joy', 'joy']
+  Topic 11: ['cases today', 'cases reported', 'cases deaths', 'cases confirmed', 'daily cases', 'new cases', 'cases highest', 'total cases', 'confirmed cases', 'cases day']
+  Topic 12: ['boris', 'covidiots', 'johnson', 'minister', 'britain', 'united_kingdom', 'british', 'prime minister', 'scotland', 'ministers']
+  Topic 13: ['realdonaldtrump', 'trump administration', 'president trump', 'president donald', 'trump', 'donald', 'donald trump', 'president', 'gop', 'white house']
+  Topic 14: ['south africa', 'africa', 'uganda', 'tanzania', 'sa', 'epidemic', 'african', 'kenya', 'south', 'countries']

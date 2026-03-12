@@ -72,7 +72,8 @@ if __name__ == "__main__":
             min_df=5,
             max_df=0.85,
             extra_stop_words=COVID_STOPWORDS
-        )
+        ),
+        ctfidf_model=get_ctfidf_model(bm25_weighting=False, reduce_frequent_words=False),
     )
 
     print("Building and fitting BERTopic pipeline...")
