@@ -1,10 +1,14 @@
 """
 Finetune UMAP by visualising 2D projections for different n_neighbors and min_dist.
 
-Loads documents, embeds them once, then runs UMAP with varying n_neighbors (or min_dist)
-and saves 3x3 scatterplot grids to compare how points are grouped.
+Loads documents (random 4k per CSV file, then capped at max_docs), embeds them once,
+then runs UMAP with varying n_neighbors (or min_dist) and saves 3x3 scatterplot grids.
+The 9 UMAP runs per sweep execute concurrently in separate processes (avoids Numba
+thread-unsafe workqueue when using threads).
 """
 
+import asyncio
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 import sys
 
@@ -15,10 +19,11 @@ if _root not in sys.path:
 
 import matplotlib.pyplot as plt
 import numpy as np
-from umap import UMAP
+import pandas as pd
 
+from experiments.finetune_umap_worker import _umap_2d_worker
 from utils.bertopic_pipeline import get_embedding_model
-from utils import prepare_for_bertopic
+from utils import filter_language, get_documents, remove_duplicates
 
 # ---------------------------------------------------------------------------
 # Config
@@ -27,19 +32,56 @@ DEFAULT_DATA_DIR = _root / "data" / "covid19_twitter_dataset"
 DEFAULT_TEXT_COLUMN = "clean_tweet"
 DEFAULT_MIN_LENGTH = 10
 DEFAULT_DEDUPE = True
+DEFAULT_MAX_DOCS = 20_000
+SAMPLE_PER_FILE = 4_000
 
-# n_neighbors values to sweep (9 for 3x3 grid)
-N_NEIGHBORS_VALUES = [2, 5, 10, 15, 20, 30, 50, 100, 150]
+# n_neighbors: balance local vs global structure. For many docs (10k+), very small
+# values (2–5) can overfit and fragment; 15–200 is a typical range. Sweep from
+# local (5) to global (200) so you can pick the right granularity for topic clusters.
+N_NEIGHBORS_VALUES = [5, 10, 15, 25, 50, 75, 100, 150, 200]
 
-# min_dist values to sweep (9 for 3x3 grid)
-MIN_DIST_VALUES = [0.0001, 0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.0]
+# min_dist: how tightly points pack in 2D (0 = tight clusters, 1 = spread out). For
+# topic modeling, 0.0–0.2 is common; higher values (0.5–1.0) give looser, more
+# continuous layouts. Sweep full range to see over-clustering vs over-spread.
+MIN_DIST_VALUES = [0.0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]
 
-# Fixed UMAP params when sweeping the other
+# Fixed UMAP params when sweeping the other (sensible defaults for large corpora)
 FIXED_MIN_DIST = 0.0
-FIXED_N_NEIGHBORS = 15
+FIXED_N_NEIGHBORS = 50
 
 PLOTS_NEIGHBOURS_DIR = _root / "experiments" / "plots"
 PLOTS_DIST_DIR = _root / "experiments" / "plots"
+
+
+def load_covid_tweets_sampled(
+    data_dir: Path | str,
+    sample_per_file: int = SAMPLE_PER_FILE,
+    pattern: str = "*.csv",
+    random_state: int = 42,
+) -> pd.DataFrame:
+    """Load each CSV in data_dir, take a random sample of up to sample_per_file rows per file, then concat."""
+    data_path = Path(data_dir)
+    if not data_path.is_dir():
+        raise FileNotFoundError(f"Data directory not found: {data_dir}")
+    files = sorted(data_path.glob(pattern))
+    if not files:
+        raise FileNotFoundError(f"No files matching '{pattern}' in {data_dir}")
+
+    rng = np.random.default_rng(random_state)
+    dfs = []
+    for f in files:
+        df = pd.read_csv(
+            f,
+            encoding="utf-8",
+            encoding_errors="replace",
+            on_bad_lines="skip",
+        )
+        n = min(sample_per_file, len(df))
+        if n < len(df):
+            idx = rng.choice(len(df), size=n, replace=False)
+            df = df.iloc[idx].reset_index(drop=True)
+        dfs.append(df)
+    return pd.concat(dfs, ignore_index=True)
 
 
 def load_documents_and_embeddings(
@@ -47,36 +89,40 @@ def load_documents_and_embeddings(
     text_column: str = DEFAULT_TEXT_COLUMN,
     min_length: int = DEFAULT_MIN_LENGTH,
     dedupe: bool = DEFAULT_DEDUPE,
+    max_docs: int = DEFAULT_MAX_DOCS,
+    random_state: int = 42,
 ):
-    """Load documents and compute embeddings once (shared across all UMAP runs)."""
-    print("Loading and preprocessing tweets...")
-    documents, _ = prepare_for_bertopic(
+    """Load documents (4k per file, then cap at max_docs) and compute embeddings once."""
+    print("Loading and preprocessing tweets (random 4k per file)...")
+    df = load_covid_tweets_sampled(
         data_dir=data_dir,
+        sample_per_file=SAMPLE_PER_FILE,
+        random_state=random_state,
+    )
+    df = filter_language(df, lang="en")
+    if dedupe:
+        df = remove_duplicates(df, text_column=text_column)
+    documents, _ = get_documents(
+        df,
         text_column=text_column,
-        lang="en",
         min_length=min_length,
-        dedupe=dedupe,
+        return_metadata=True,
     )
     if not documents:
         raise SystemExit("No documents after preprocessing. Exiting.")
-    print(f"Documents: {len(documents)}")
+
+    if len(documents) > max_docs:
+        rng = np.random.default_rng(random_state)
+        idx = rng.choice(len(documents), size=max_docs, replace=False)
+        documents = [documents[i] for i in sorted(idx)]
+        print(f"Capped to max_docs={max_docs}; using {len(documents)} documents.")
+    else:
+        print(f"Documents: {len(documents)}")
 
     print("Computing embeddings...")
     embedding_model = get_embedding_model()
     embeddings = embedding_model.encode(documents, show_progress_bar=True)
     return documents, np.array(embeddings)
-
-
-def run_umap_2d(embeddings: np.ndarray, n_neighbors: int, min_dist: float, random_state: int = 42) -> np.ndarray:
-    """Run UMAP with n_components=2 for scatter plot; returns (n_samples, 2)."""
-    umap = UMAP(
-        n_components=2,
-        n_neighbors=n_neighbors,
-        min_dist=min_dist,
-        metric="cosine",
-        random_state=random_state,
-    )
-    return umap.fit_transform(embeddings)
 
 
 def plot_3x3_scattergrid(
@@ -105,17 +151,25 @@ def plot_3x3_scattergrid(
     print(f"Saved: {out_path}")
 
 
-def run_n_neighbors_experiment(embeddings: np.ndarray) -> None:
-    """Sweep n_neighbors; fixed min_dist. Save 3x3 scatter grid."""
-    print("\n--- n_neighbors experiment ---")
-    coords_list = []
-    for n in N_NEIGHBORS_VALUES:
-        print(f"  UMAP n_neighbors={n} ...")
-        coords = run_umap_2d(embeddings, n_neighbors=n, min_dist=FIXED_MIN_DIST)
-        coords_list.append(coords)
+async def run_umap_2d_async(executor: ProcessPoolExecutor, params: tuple) -> np.ndarray:
+    """Run _umap_2d_worker in the process pool (avoids Numba concurrent-access in threads)."""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(executor, _umap_2d_worker, params)
 
+
+async def run_n_neighbors_experiment_async(
+    executor: ProcessPoolExecutor,
+    embeddings: np.ndarray,
+) -> None:
+    """Run 9 UMAP fits (one per n_neighbors) concurrently in separate processes; when all complete, build and save 3x3 scatter grid."""
+    print("\n--- n_neighbors experiment (9 runs concurrently) ---")
+    tasks = [
+        run_umap_2d_async(executor, (embeddings, n, FIXED_MIN_DIST, 42))
+        for n in N_NEIGHBORS_VALUES
+    ]
+    coords_list = await asyncio.gather(*tasks)
     plot_3x3_scattergrid(
-        coords_list,
+        list(coords_list),
         N_NEIGHBORS_VALUES,
         param_name="n_neighbors",
         title_prefix=f"UMAP 2D (min_dist={FIXED_MIN_DIST})",
@@ -123,17 +177,19 @@ def run_n_neighbors_experiment(embeddings: np.ndarray) -> None:
     )
 
 
-def run_min_dist_experiment(embeddings: np.ndarray) -> None:
-    """Sweep min_dist; fixed n_neighbors. Save 3x3 scatter grid."""
-    print("\n--- min_dist experiment ---")
-    coords_list = []
-    for d in MIN_DIST_VALUES:
-        print(f"  UMAP min_dist={d} ...")
-        coords = run_umap_2d(embeddings, n_neighbors=FIXED_N_NEIGHBORS, min_dist=d)
-        coords_list.append(coords)
-
+async def run_min_dist_experiment_async(
+    executor: ProcessPoolExecutor,
+    embeddings: np.ndarray,
+) -> None:
+    """Run 9 UMAP fits (one per min_dist) concurrently in separate processes; when all complete, build and save 3x3 scatter grid."""
+    print("\n--- min_dist experiment (9 runs concurrently) ---")
+    tasks = [
+        run_umap_2d_async(executor, (embeddings, FIXED_N_NEIGHBORS, d, 42))
+        for d in MIN_DIST_VALUES
+    ]
+    coords_list = await asyncio.gather(*tasks)
     plot_3x3_scattergrid(
-        coords_list,
+        list(coords_list),
         MIN_DIST_VALUES,
         param_name="min_dist",
         title_prefix=f"UMAP 2D (n_neighbors={FIXED_N_NEIGHBORS})",
@@ -141,25 +197,53 @@ def run_min_dist_experiment(embeddings: np.ndarray) -> None:
     )
 
 
-def main(
+async def main_async(
     data_dir: Path | str = DEFAULT_DATA_DIR,
     text_column: str = DEFAULT_TEXT_COLUMN,
     min_length: int = DEFAULT_MIN_LENGTH,
     dedupe: bool = DEFAULT_DEDUPE,
+    max_docs: int = DEFAULT_MAX_DOCS,
     run_neighbours: bool = True,
     run_dist: bool = True,
+    max_workers: int = 9,
 ) -> None:
     documents, embeddings = load_documents_and_embeddings(
         data_dir=data_dir,
         text_column=text_column,
         min_length=min_length,
         dedupe=dedupe,
+        max_docs=max_docs,
     )
-    if run_neighbours:
-        run_n_neighbors_experiment(embeddings)
-    if run_dist:
-        run_min_dist_experiment(embeddings)
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        if run_neighbours:
+            await run_n_neighbors_experiment_async(executor, embeddings)
+        if run_dist:
+            await run_min_dist_experiment_async(executor, embeddings)
     print("Done.")
+
+
+def main(
+    data_dir: Path | str = DEFAULT_DATA_DIR,
+    text_column: str = DEFAULT_TEXT_COLUMN,
+    min_length: int = DEFAULT_MIN_LENGTH,
+    dedupe: bool = DEFAULT_DEDUPE,
+    max_docs: int = DEFAULT_MAX_DOCS,
+    run_neighbours: bool = True,
+    run_dist: bool = True,
+    max_workers: int = 9,
+) -> None:
+    asyncio.run(
+        main_async(
+            data_dir=data_dir,
+            text_column=text_column,
+            min_length=min_length,
+            dedupe=dedupe,
+            max_docs=max_docs,
+            run_neighbours=run_neighbours,
+            run_dist=run_dist,
+            max_workers=max_workers,
+        )
+    )
 
 
 if __name__ == "__main__":
@@ -169,8 +253,10 @@ if __name__ == "__main__":
     parser.add_argument("--text-column", default=DEFAULT_TEXT_COLUMN, help="Document text column")
     parser.add_argument("--min-length", type=int, default=DEFAULT_MIN_LENGTH, help="Min document length")
     parser.add_argument("--no-dedupe", action="store_true", help="Disable deduplication")
+    parser.add_argument("--max-docs", type=int, default=DEFAULT_MAX_DOCS, help="Max documents to use (default: 20000)")
     parser.add_argument("--neighbours-only", action="store_true", help="Run only n_neighbors experiment")
     parser.add_argument("--dist-only", action="store_true", help="Run only min_dist experiment")
+    parser.add_argument("--max-workers", type=int, default=9, help="Concurrent UMAP runs per sweep (default: 9)")
     args = parser.parse_args()
 
     run_neighbours = not args.dist_only
@@ -185,6 +271,8 @@ if __name__ == "__main__":
         text_column=args.text_column,
         min_length=args.min_length,
         dedupe=not args.no_dedupe,
+        max_docs=args.max_docs,
         run_neighbours=run_neighbours,
         run_dist=run_dist,
+        max_workers=args.max_workers,
     )
