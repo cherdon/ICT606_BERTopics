@@ -139,12 +139,12 @@ def plot_3x3_condensed_trees(
     title_prefix: str,
     out_path: Path,
 ) -> None:
-    """Plot 9 condensed tree plots in a 3x3 grid; each clusterer.condensed_tree_.plot(ax=ax)."""
+    """Plot 9 condensed tree plots in a 3x3 grid; each clusterer.condensed_tree_.plot(axis=ax)."""
     fig, axes = plt.subplots(3, 3, figsize=(14, 14))
     axes = axes.flatten()
     for i, (clusterer, value) in enumerate(zip(clusterers, param_values)):
         ax = axes[i]
-        clusterer.condensed_tree_.plot(ax=ax)
+        clusterer.condensed_tree_.plot(axis=ax)
         ax.set_title(f"{param_name}={value}")
     fig.suptitle(title_prefix, fontsize=14)
     plt.tight_layout()
