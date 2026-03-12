@@ -7,8 +7,55 @@ if _root not in sys.path:
     sys.path.insert(0, str(_root))
 
 from utils.bertopic_pipeline import run_pipeline, build_bertopic_pipeline
-from utils.bertopic_pipeline import get_embedding_model, get_umap_model, get_hdbscan_model, get_representation_model, get_vectorizer_model, get_ctfidf_model
+from utils.bertopic_pipeline import (
+    get_umap_model,
+    get_hdbscan_model,
+    get_vectorizer_model,
+    get_ctfidf_model,
+)
 from utils.constants import COVID_STOPWORDS, COLUMNS_TO_DROP
+from utils.metrics import topic_coherence_gensim, get_topic_overview
+
+RESULTS_DIR = _root / "experiments" / "results"
+BERTOPIC_RESULTS_FILE = RESULTS_DIR / "bertopic_results.txt"
+TOP_N_TOPICS_FOR_RESULTS = 20
+
+
+def write_bertopic_results(
+    model,
+    documents: list,
+    topics: list,
+    coherence: float,
+    out_path: Path,
+) -> None:
+    """Write coherence, topic count, and top topics (with words) to a text file."""
+    overview, nr_topics = get_topic_overview(model, top_n=10, exclude_outliers=True)
+    info = model.get_topic_info()
+    info_no_out = info[info["Topic"] != -1].sort_values("Count", ascending=False)
+    top_topic_ids = info_no_out.head(TOP_N_TOPICS_FOR_RESULTS)["Topic"].tolist()
+
+    lines = [
+        "BERTopic run results (finalized pipeline)",
+        "=" * 60,
+        f"Coherence (c_v): {coherence:.4f}",
+        f"Number of topics (excl. outliers): {nr_topics}",
+        f"Total documents: {len(documents)}",
+        "",
+        "Topic sizes (top topics by count):",
+        info_no_out.head(TOP_N_TOPICS_FOR_RESULTS).to_string(),
+        "",
+        "Top topics (by size) – top 10 words each:",
+    ]
+    for tid in top_topic_ids:
+        if tid in overview and overview[tid]:
+            words = [w for w, _ in overview[tid]]
+            lines.append(f"  Topic {tid}: {words}")
+    lines.append("")
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    print(f"Results written to {out_path}")
 
 
 if __name__ == "__main__":
@@ -78,5 +125,14 @@ if __name__ == "__main__":
 
     print("Building and fitting BERTopic pipeline...")
     model, topics, probs = run_pipeline(documents, build_fn=pipeline)
-    print(f"Found {len(set(topics) - {-1})} topics (+ outliers -1).")
+    n_topics = len(set(topics) - {-1})
+    print(f"Found {n_topics} topics (+ outliers -1).")
     print("Topic info:", model.get_topic_info().head(10).to_string())
+
+    # Coherence and results file
+    print("Computing topic coherence (c_v)...")
+    coherence = topic_coherence_gensim(model, documents, top_n=10, coherence="c_v")
+    print(f"Coherence (c_v): {coherence:.4f}")
+    write_bertopic_results(
+        model, documents, topics, coherence, BERTOPIC_RESULTS_FILE
+    )
