@@ -148,14 +148,25 @@ def main(
     print(f"Computing topics over time for {len(docs_sub)} docs across {n_unique_months} months...")
 
     # 10. Topic frequency over time (by month)
-    topics_over_time_df = model.topics_over_time(
-        docs=docs_sub,
-        timestamps=timestamps_sub,
-        topics=topics_sub,
-        nr_bins=n_unique_months,
-        evolution_tuning=True,
-        global_tuning=True,
-    )
+    # BERTopic 0.16.x calls pd.to_datetime(..., infer_datetime_format=...) which was removed in pandas 2.0.
+    # Monkey-patch to drop that kwarg so topics_over_time runs with pandas >= 2.
+    _orig_to_datetime = pd.to_datetime
+    def _to_datetime_pandas2_compat(*args, **kwargs):
+        kwargs.pop("infer_datetime_format", None)
+        kwargs.pop("format", None)
+        return _orig_to_datetime(*args, **kwargs)
+    pd.to_datetime = _to_datetime_pandas2_compat
+    try:
+        topics_over_time_df = model.topics_over_time(
+            docs=docs_sub,
+            timestamps=timestamps_sub,
+            topics=topics_sub,
+            nr_bins=n_unique_months,
+            evolution_tuning=True,
+            global_tuning=True,
+        )
+    finally:
+        pd.to_datetime = _orig_to_datetime
 
     if save_csv:
         csv_path = results_dir / "dynamic_topics_over_time.csv"
